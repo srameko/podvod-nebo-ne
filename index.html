@@ -6,252 +6,491 @@
 <title>Podvod, nebo ne? – simulátor</title>
 <meta name="description" content="Bezpečný trenažér: vyzkoušejte si, jak vypadají dnešní internetové a telefonní podvody. Nic se neodesílá ani neukládá.">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#edf0f3">
+<meta name="theme-color" content="#f3efe7">
 <style>
 :root{
-  --bg:#edf0f3; --paper:#fff; --ink:#15202b; --muted:#54616d; --line:#cfd6dd;
-  --blue:#0a58a6; --blue-d:#08447f;
-  --red:#b3261e; --red-bg:#fdecea; --green:#17673d; --green-bg:#e4f3ea; --amber:#7a4b00; --amber-bg:#fff1cc;
-  --pw:min(380px,calc(100vw - 28px));
-  --ph:min(calc(var(--pw)*1.92),80svh);
+  --bg:#f3efe7; --paper:#fffdf8; --ink:#1b1f23; --ink2:#2f363d; --muted:#59616a; --line:#e2dbce; --line2:#cbc2b2;
+  --brand:#0e5a6b; --brand-d:#093f4b; --brand-bg:#e2eff1;
+  --red:#b3261e; --red-bg:#fbe9e6; --green:#1b6a42; --green-bg:#e2f1e7; --amber:#875200; --amber-bg:#fcefd3;
+  --c-call:#0f6e63; --c-fb:#3a4bb0; --c-ch:#a85a07; --c-quiz:#6a3d9e;
+  --serif:"Iowan Old Style","Charter","Bitstream Charter","Palatino Linotype","Book Antiqua",Georgia,serif;
+  --sans:system-ui,-apple-system,"Segoe UI","Helvetica Neue",sans-serif;
+  --r:16px;
+  --pw:min(390px,calc(100vw - 32px));
+  --ph:clamp(540px,calc(100svh - 7.5rem),calc(var(--pw) * 2.05));
 }
-body.big{--pw:min(450px,calc(100vw - 28px));--ph:min(calc(var(--pw)*1.92),86svh)}
+body.big{--pw:min(460px,calc(100vw - 32px));--ph:clamp(600px,calc(100svh - 6rem),calc(var(--pw) * 2.05))}
 *{box-sizing:border-box}
 html{font-size:18px;-webkit-text-size-adjust:100%}
 body.big{font-size:20px}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;line-height:1.5}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5;min-height:100svh}
 button{font:inherit;color:inherit}
-:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+h1,h2,h3{font-family:var(--serif);font-weight:700;letter-spacing:-.005em}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
 .skip{position:absolute;left:-999px;top:0;background:#fff;padding:.5rem 1rem;z-index:99}
 .skip:focus{left:8px;top:8px}
-
-/* ---------- shell ---------- */
-.top{display:flex;flex-wrap:wrap;gap:.8rem 2rem;align-items:flex-end;justify-content:space-between;max-width:1120px;margin:0 auto;padding:1.4rem 1rem .6rem}
-.top h1{margin:0;font-size:2rem;line-height:1.1;letter-spacing:-.01em}
-.top .sub{margin:.3rem 0 0;color:var(--muted);font-size:.95rem;max-width:34rem}
-.opts{display:flex;flex-wrap:wrap;gap:.5rem}
-.tog{border:2px solid var(--line);background:var(--paper);border-radius:999px;padding:.35rem .9rem;font-size:.85rem;cursor:pointer;min-height:2.4rem}
-.tog[aria-pressed="true"]{border-color:var(--blue);background:#e5f0fb;color:var(--blue-d);font-weight:600}
-main{max-width:1120px;margin:0 auto;padding:0 1rem 2rem}
-footer{max-width:1120px;margin:0 auto;padding:0 1rem 2rem;color:var(--muted);font-size:.8rem}
 [hidden]{display:none!important}
+.ic{width:1.25em;height:1.25em;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.22em}
+.wrap{max-width:1180px;margin:0 auto;padding:0 1.25rem}
 
-/* menu */
-.lead{font-size:1.15rem;margin:1rem 0 1.2rem;max-width:40rem}
-.modes{display:grid;gap:.8rem;max-width:44rem}
-.mode{display:block;width:100%;text-align:left;background:var(--paper);border:2px solid var(--line);border-left-width:10px;border-radius:.6rem;padding:.9rem 1.1rem;cursor:pointer}
-.mode:hover{border-color:var(--blue)}
-.mode .mh{display:block;font-size:1.3rem;font-weight:700;line-height:1.25}
-.mode .md{display:block;margin:.2rem 0 0;color:var(--muted);font-size:.95rem}
-.mode .min{display:block;font-size:.8rem;color:var(--muted);margin-top:.3rem}
-.m-call{border-left-color:#0d6b5c}.m-fb{border-left-color:#3b5bdb}.m-ch{border-left-color:#c77700}.m-quiz{border-left-color:#7a3db8}
-.rule{margin:1.6rem 0 1rem;max-width:44rem;padding:1rem 1.2rem;background:#15202b;color:#fff;border-radius:.6rem;font-size:1.2rem;line-height:1.4}
-.rule b{font-weight:700}
-details.help{max-width:44rem;background:var(--paper);border:2px solid var(--line);border-radius:.6rem;padding:.7rem 1.1rem}
-details.help summary{cursor:pointer;font-weight:700}
-details.help ol{margin:.6rem 0 .2rem;padding-left:1.3rem}
-details.help li{margin:.3rem 0}
+/* ---------- header ---------- */
+.top{border-bottom:1px solid var(--line);background:rgba(255,253,248,.7)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:.8rem 1.5rem;flex-wrap:wrap;padding-top:.8rem;padding-bottom:.8rem}
+.brand{display:flex;align-items:center;gap:.7rem;text-decoration:none;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:left}
+.brand .mk{width:2.4rem;height:2.4rem;border-radius:.7rem;background:var(--ink);color:#fff;display:grid;place-items:center}
+.brand .mk .ic{width:1.35rem;height:1.35rem}
+.brand b{display:block;font-family:var(--serif);font-size:1.2rem;line-height:1.1}
+.brand small{display:block;color:var(--muted);font-size:.78rem;line-height:1.2}
+.opts{display:flex;flex-wrap:wrap;gap:.45rem}
+.tog{display:inline-flex;align-items:center;gap:.4rem;border:1.5px solid var(--line2);background:var(--paper);border-radius:999px;padding:.3rem .85rem;font-size:.82rem;cursor:pointer;min-height:2.6rem;color:var(--ink2)}
+.tog:hover{border-color:var(--brand)}
+.tog[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-bg);color:var(--brand-d);font-weight:650}
+.tog .ic{width:1.1em;height:1.1em}
+.tog .m{display:none}
 
-/* stage */
-.stage-top{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin:.6rem 0 1rem}
-.stage-top h2{margin:0;font-size:1.35rem}
-.btn{border:2px solid var(--blue);background:var(--blue);color:#fff;border-radius:.6rem;padding:.6rem 1.1rem;cursor:pointer;font-weight:600;min-height:3rem}
-.btn:hover{background:var(--blue-d);border-color:var(--blue-d)}
-.btn.ghost{background:var(--paper);color:var(--blue-d)}
-.btn.ghost:hover{background:#e5f0fb}
-.btn.danger{background:var(--red);border-color:var(--red)}
-.grid{display:grid;grid-template-columns:auto minmax(0,1fr);gap:1.6rem;align-items:start}
+/* ---------- menu ---------- */
+.hero{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:2.5rem;align-items:center;padding:2.6rem 0 2rem}
+.eyebrow{display:inline-flex;align-items:center;gap:.45rem;font-size:.8rem;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--brand)}
+.hero h1{font-size:clamp(2.2rem,5.4vw,3.6rem);line-height:1.02;margin:.5rem 0 .9rem}
+.hero .lead{font-size:1.15rem;color:var(--ink2);margin:0 0 1.2rem;max-width:34rem}
+.hero .how{list-style:none;margin:0;padding:0;display:grid;gap:.5rem;max-width:34rem}
+.hero .how li{display:flex;gap:.7rem;align-items:flex-start;font-size:.95rem;color:var(--ink2)}
+.hero .how i{font-style:normal;flex:none;width:1.6rem;height:1.6rem;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:.8rem;font-weight:700;margin-top:.05rem}
+.hero-art{position:relative;height:320px}
+.ha-card{position:absolute;width:min(300px,90%);background:#fff;border-radius:22px;padding:14px 16px 16px;box-shadow:0 18px 40px -18px rgba(30,25,15,.35),0 2px 6px rgba(30,25,15,.08);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.ha-card:first-child{left:0;top:10px;transform:rotate(-3deg)}
+.ha-card.ha-2{right:0;bottom:10px;transform:rotate(2.5deg)}
+.ha-from{font-size:13px;font-weight:600;color:#333;display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ha-from i{width:26px;height:26px;border-radius:50%;background:#b8bec6;display:grid;place-items:center;color:#fff;font-style:normal;font-size:12px}
+.ha-bub{background:#e9e9ee;border-radius:18px;padding:9px 12px;font-size:15px;line-height:1.3;color:#111}
+.ha-bub u{color:#0a5bd6}
+.stamp{position:absolute;font-family:var(--serif);font-weight:800;font-size:1.05rem;text-transform:uppercase;letter-spacing:.08em;padding:.25rem .7rem;border:3px solid;border-radius:.5rem;background:rgba(255,253,248,.92)}
+.s-bad{color:var(--red);left:52%;top:0;transform:rotate(8deg)}
+.s-ok{color:var(--green);left:8%;bottom:4px;transform:rotate(-6deg)}
+
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin:1.2rem 0 .9rem}
+.sec-h h2{margin:0;font-size:1.5rem}
+.sec-h p{margin:0;color:var(--muted);font-size:.9rem}
+.modes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+.mode{--c:var(--brand);display:flex;flex-direction:column;gap:.55rem;width:100%;text-align:left;background:var(--paper);border:1.5px solid var(--line);border-radius:var(--r);padding:1.2rem 1.3rem 1.1rem;cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s;position:relative;overflow:hidden}
+.mode:hover{border-color:var(--c);transform:translateY(-2px);box-shadow:0 14px 30px -18px rgba(30,25,15,.4)}
+.mode .mt{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.mode .mi{width:3rem;height:3rem;border-radius:.85rem;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 13%,#fff);color:var(--c)}
+.mode .mi .ic{width:1.6rem;height:1.6rem}
+.mode .min{font-size:.8rem;color:var(--muted);display:inline-flex;align-items:center;gap:.3rem}
+.mode .mh{display:block;font-family:var(--serif);font-size:1.4rem;font-weight:700;line-height:1.2;margin-top:.2rem}
+.mode .md{display:block;color:var(--ink2);font-size:.97rem}
+.mode .ml{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.1rem}
+.mode .ml span{font-size:.75rem;border-radius:99px;padding:.1rem .55rem;background:#f1ece2;color:var(--ink2)}
+.mode .go{margin-top:auto;padding-top:.5rem;font-weight:650;color:var(--c);display:inline-flex;align-items:center;gap:.35rem}
+.m-call{--c:var(--c-call)}.m-fb{--c:var(--c-fb)}.m-ch{--c:var(--c-ch)}.m-quiz{--c:var(--c-quiz)}
+
+.rule{margin:2.2rem 0 0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:1.5rem 2.5rem;background:var(--ink);color:#fff;border-radius:calc(var(--r) + 4px);padding:2rem 2.2rem}
+.rule h2{margin:0;font-size:clamp(1.6rem,3.4vw,2.3rem);line-height:1.1}
+.rule h2 em{font-style:italic;color:#ffd79a}
+.rule p{margin:.7rem 0 0;color:#d6dbe0;font-size:1rem}
+.three{list-style:none;margin:0;padding:0;display:grid;gap:.6rem;counter-reset:q}
+.three li{counter-increment:q;display:flex;gap:.8rem;align-items:flex-start;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:.8rem;padding:.7rem .9rem;font-size:1rem;line-height:1.35}
+.three li:before{content:counter(q);flex:none;width:1.7rem;height:1.7rem;border-radius:50%;background:#ffd79a;color:var(--ink);display:grid;place-items:center;font-weight:800;font-size:.85rem}
+.help{margin:2.2rem 0 0}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem;counter-reset:s}
+.steps li{counter-increment:s;background:var(--paper);border:1.5px solid var(--line);border-radius:var(--r);padding:1rem 1.1rem;font-size:.95rem}
+.steps li b{display:block;font-family:var(--serif);font-size:1.1rem;margin-bottom:.25rem}
+.steps li b:before{content:counter(s) ". ";color:var(--red)}
+.steps a{color:var(--brand-d)}
+details.pres{margin:1.4rem 0 0;background:var(--paper);border:1.5px solid var(--line);border-radius:var(--r);padding:.8rem 1.1rem}
+details.pres summary{cursor:pointer;font-weight:650}
+details.pres ul{margin:.6rem 0 .2rem;padding-left:1.2rem}
+details.pres li{margin:.3rem 0}
+code{background:#efe9dd;padding:.05rem .35rem;border-radius:.3rem;font-size:.9em}
+footer{border-top:1px solid var(--line);margin-top:2.5rem}
+footer .wrap{padding-top:1.2rem;padding-bottom:2rem;color:var(--muted);font-size:.82rem;display:flex;gap:.6rem;align-items:flex-start}
+footer .ic{margin-top:.15rem}
+
+/* ---------- stage ---------- */
+.stage-top{display:flex;align-items:center;gap:.8rem 1rem;flex-wrap:wrap;margin:1.1rem 0 1.2rem}
+.stage-top h2{margin:0;font-size:1.6rem;line-height:1.15}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;border:2px solid var(--brand);background:var(--brand);color:#fff;border-radius:.75rem;padding:.55rem 1.1rem;cursor:pointer;font-weight:650;min-height:3rem}
+.btn:hover{background:var(--brand-d);border-color:var(--brand-d)}
+.btn.ghost{background:var(--paper);color:var(--brand-d);border-color:var(--line2)}
+.btn.ghost:hover{border-color:var(--brand);background:var(--brand-bg)}
+.btn.sm{min-height:2.6rem;padding:.35rem .85rem;font-size:.9rem}
+.grid{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2rem;align-items:start}
 .phone-col{width:var(--pw)}
-.coach{background:var(--paper);border:2px solid var(--line);border-radius:.8rem;padding:1rem 1.2rem;max-width:36rem}
-.coach h3{margin:0 0 .5rem;font-size:1.1rem}
-.pressure{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 1rem}
-.chip{border:2px solid var(--line);color:#8b96a1;border-radius:999px;padding:.1rem .7rem;font-size:.85rem;background:#f6f8fa}
+.side{display:grid;gap:1.2rem;max-width:40rem;width:100%}
+.tray{display:grid;gap:.55rem;background:var(--paper);border:1.5px solid var(--line);border-radius:calc(var(--r) + 2px);padding:1.1rem 1.2rem}
+.tray:empty{display:none}
+.tray .q{margin:0;font-weight:700;font-size:1.05rem;line-height:1.35}
+.tray .hint{margin:0 0 .15rem;color:var(--muted);font-size:.88rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.dots{display:inline-flex;gap:.25rem}
+.dots i{width:.6rem;height:.6rem;border-radius:50%;background:#d8d0c1}
+.dots i.on{background:var(--red)}
+.choice{display:flex;align-items:center;gap:.7rem;width:100%;text-align:left;border:2px solid var(--line2);background:var(--paper);color:var(--ink);border-radius:.8rem;padding:.7rem 1rem;cursor:pointer;font-weight:600;min-height:3.3rem;line-height:1.3;transition:border-color .12s,background .12s}
+.choice:hover{border-color:var(--brand);background:var(--brand-bg)}
+.choice .k{flex:none;width:1.7rem;height:1.7rem;border-radius:.45rem;background:#efe9dd;color:var(--ink2);display:grid;place-items:center;font-size:.8rem;font-weight:800}
+.twin{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.choice.two{justify-content:center;font-size:1.1rem;flex-direction:column;gap:.2rem;padding:.8rem .6rem}
+.choice.two .ic{width:1.5rem;height:1.5rem}
+.choice.scam{border-color:var(--red);color:var(--red)}
+.choice.scam:hover{background:var(--red-bg)}
+.choice.fine{border-color:var(--green);color:var(--green)}
+.choice.fine:hover{background:var(--green-bg)}
+.row2{display:flex;gap:.6rem;flex-wrap:wrap}
+.row2 .btn{flex:1 1 10rem}
+.progress{height:.45rem;background:#e2dbce;border-radius:99px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--brand);transition:width .3s}
+.live{border-radius:.8rem;background:var(--red-bg);border:1.5px solid #efb8b0;padding:.6rem .85rem;font-size:.92rem;animation:pop .25s ease-out;display:none}
+.live b{display:block;color:var(--red)}
+
+.coach{background:var(--paper);border:1.5px solid var(--line);border-radius:calc(var(--r) + 2px);padding:1.3rem 1.4rem;display:grid;gap:1.1rem}
+.coach h3{margin:0 0 .45rem;font-size:1.05rem;display:flex;align-items:center;gap:.45rem}
+.coach h3 .ic{color:var(--brand)}
+.sit{margin:0;font-size:1rem;color:var(--ink2)}
+.pressure{display:flex;flex-wrap:wrap;gap:.4rem}
+.chip{border:1.5px solid var(--line);color:#8d8577;border-radius:999px;padding:.12rem .7rem;font-size:.85rem;background:#f7f3ec;transition:all .2s}
 .chip.on{border-color:var(--red);background:var(--red-bg);color:var(--red);font-weight:700}
-.pnote{font-size:.85rem;color:var(--muted);margin:0 0 .3rem}
-.notes{list-style:none;margin:0;padding:0;display:grid;gap:.6rem}
-.note{border-left:6px solid var(--blue);background:#f2f7fc;padding:.5rem .8rem;border-radius:.2rem;animation:pop .25s ease-out}
-.note.found{border-color:var(--red);background:var(--red-bg)}
-.note.missed{border-color:#c77700;background:var(--amber-bg)}
-.note b{display:block}
-.note span{font-size:.95rem}
-.note em{font-style:normal;font-size:.8rem;color:var(--muted)}
+.notes{list-style:none;margin:0;padding:0;display:grid;gap:.55rem}
+.note{border:1.5px solid #c9dfe4;background:#f0f7f8;padding:.6rem .85rem;border-radius:.7rem;animation:pop .25s ease-out;font-size:.95rem}
+.note b{display:flex;align-items:flex-start;gap:.45rem;line-height:1.3;margin-bottom:.15rem}
+.note b .ic{color:var(--brand);margin-top:.05rem}
+.note.found{border-color:#efb8b0;background:var(--red-bg)}
+.note.found b .ic{color:var(--red)}
+.note.missed{border-color:#ecd29a;background:var(--amber-bg)}
+.note.missed b .ic{color:var(--amber)}
+.note.good{border-color:#a9d3b8;background:var(--green-bg)}
+.note.good b .ic{color:var(--green)}
+.note .v{display:block;margin-top:.3rem;font-size:.88rem;color:var(--ink2)}
+.note .v:before{content:"Co udělat: ";font-weight:700}
+.note em{display:block;font-style:normal;font-size:.75rem;color:var(--muted);margin-top:.25rem;text-transform:uppercase;letter-spacing:.04em}
 .empty{color:var(--muted);font-size:.95rem;margin:0}
 @keyframes pop{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-.verdict{margin-top:1rem;border-radius:.6rem;padding:.9rem 1rem;border:2px solid}
+.verdict{border-radius:.9rem;padding:1rem 1.1rem;border:2px solid;animation:pop .3s ease-out}
 .verdict.bad{background:var(--red-bg);border-color:var(--red)}
 .verdict.ok{background:var(--green-bg);border-color:var(--green)}
-.verdict.warn{background:var(--amber-bg);border-color:#c77700}
-.verdict h3{margin:0 0 .3rem;font-size:1.25rem}
-.verdict p{margin:.3rem 0}
-.verdict ol{margin:.4rem 0 0;padding-left:1.3rem}
+.verdict.warn{background:var(--amber-bg);border-color:#c98a1a}
+.verdict .vh{display:flex;gap:.6rem;align-items:flex-start}
+.verdict .vh .ic{width:1.7rem;height:1.7rem;margin-top:.05rem}
+.verdict.bad .vh .ic{color:var(--red)}.verdict.ok .vh .ic{color:var(--green)}.verdict.warn .vh .ic{color:var(--amber)}
+.verdict h3{margin:0;font-size:1.3rem;line-height:1.2}
+.verdict p{margin:.45rem 0}
+.verdict ol{margin:.3rem 0 0;padding-left:1.3rem}
 .verdict li{margin:.25rem 0}
-.tray{margin-top:.9rem;display:grid;gap:.55rem}
-.tray .q{margin:0 0 .1rem;font-weight:700;font-size:1.05rem}
-.tray .hint{margin:0;color:var(--muted);font-size:.9rem}
-.choice{width:100%;text-align:left;border:2px solid var(--blue);background:var(--paper);color:var(--ink);border-radius:.6rem;padding:.7rem 1rem;cursor:pointer;font-weight:600;min-height:3.2rem;line-height:1.3}
-.choice:hover{background:#e5f0fb}
-.choice.two{text-align:center;font-size:1.15rem}
-.choice.scam{border-color:var(--red)}
-.choice.scam:hover{background:var(--red-bg)}
-.choice.fine{border-color:var(--green)}
-.choice.fine:hover{background:var(--green-bg)}
-.progress{height:.5rem;background:#dbe1e7;border-radius:99px;overflow:hidden}
-.progress i{display:block;height:100%;background:var(--blue);transition:width .3s}
-.score{font-size:2.6rem;font-weight:800;line-height:1}
+.vact{display:none;margin-top:.9rem}
+.score{font-family:var(--serif);font-size:3rem;font-weight:800;line-height:1}
+details.levers{border-top:1px solid var(--line);padding-top:.8rem}
+details.levers summary{cursor:pointer;font-weight:650;font-size:.92rem;color:var(--brand-d)}
+details.levers dl{margin:.6rem 0 0;display:grid;gap:.45rem;font-size:.9rem}
+details.levers dt{font-weight:700}
+details.levers dd{margin:0 0 .2rem;color:var(--ink2)}
 
-@media (max-width:920px){
-  .grid{grid-template-columns:1fr;justify-items:center}
-  .coach{max-width:none;width:100%}
+/* ---------- responsive ---------- */
+@media (max-width:980px){
+  .hero{grid-template-columns:1fr;gap:1.2rem;padding-top:1.8rem}
+  .hero-art{height:250px;max-width:520px;width:100%}
+  .rule{grid-template-columns:1fr}
+  .steps{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (min-width:721px) and (max-width:1000px){
+  :root{--pw:min(360px,47vw)}
+  .grid{gap:1.2rem}
+  .coach{padding:1.1rem 1.1rem}
+}
+@media (max-width:720px){
+  .grid{grid-template-columns:1fr;justify-items:center;gap:1.4rem}
+  .side{max-width:none}
+  .tray{max-width:34rem;width:100%;margin:0 auto;padding:0;background:none;border:0}
   .phone-col{margin:0 auto}
-  .top h1{font-size:1.6rem}
+  .live{display:block}
+  .vact{display:flex}
+}
+@media (max-width:640px){
+  html{font-size:17px}
+  .wrap{padding:0 1rem}
+  .top .wrap{padding-top:.6rem;padding-bottom:.6rem}
+  .brand small{display:none}
+  .opts{width:100%}
+  .tog{flex:1 1 0;justify-content:center;padding:.3rem .5rem;font-size:.82rem;white-space:nowrap}
+  .tog .d{display:none}.tog .m{display:inline}
+  .sec-h{flex-wrap:wrap;gap:.2rem 1rem}
+  .hero-art{display:none}
+  .hero .lead{font-size:1.05rem}
+  .modes{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr}
+  .rule{padding:1.4rem 1.2rem}
+  .stage-top{margin:.7rem 0 .9rem}
+  .stage-top h2{font-size:1.25rem;flex:1 1 12rem}
+  .coach{padding:1.1rem 1rem}
+  :root{--pw:calc(100vw - 24px);--ph:clamp(500px,calc(100svh - 12.5rem),calc(var(--pw) * 1.95))}
+  body.big{--pw:calc(100vw - 16px)}
+  .phone{padding:.4em!important;border-radius:2.6em!important}
+  .screen{border-radius:2.25em!important}
 }
 
 /* ---------- phone ---------- */
-.phone{width:var(--pw);height:var(--ph);font-size:calc(var(--pw) * 15 / 380);background:#1b1f25;border-radius:2.9em;padding:.5em;box-shadow:0 .7em 2em rgba(10,20,30,.3);position:relative}
-.notch{position:absolute;top:.95em;left:50%;transform:translateX(-50%);width:6em;height:1.45em;background:#07090b;border-radius:1em;z-index:8}
-.screen{position:relative;height:100%;border-radius:2.45em;overflow:hidden;background:#fff;color:#111;font-family:-apple-system,"SF Pro Text",Roboto,"Segoe UI",Arial,sans-serif;line-height:1.35;display:flex;flex-direction:column}
-.sb{display:flex;justify-content:space-between;align-items:center;padding:.85em 1.7em .35em;font-size:.86em;font-weight:600;flex:none;position:relative;z-index:6}
+.phone{width:var(--pw);height:var(--ph);font-size:calc(var(--pw) * 15 / 390);background:#15181c;border-radius:3em;padding:.55em;box-shadow:inset 0 0 0 .14em #3b4048,0 1.4em 3em -1.2em rgba(25,20,10,.55),0 .3em .9em rgba(25,20,10,.15);position:relative}
+.island{position:absolute;top:1.05em;left:50%;transform:translateX(-50%);width:6.4em;height:1.85em;background:#000;border-radius:1em;z-index:20}
+.screen{position:relative;height:100%;border-radius:2.5em;overflow:hidden;background:#fff;color:#111;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI","Helvetica Neue",sans-serif;line-height:1.35;display:flex;flex-direction:column}
+.screen .ic{width:1.35em;height:1.35em}
+.scr{flex:1;display:flex;flex-direction:column;min-height:0;position:relative}
+.sb{display:flex;justify-content:space-between;align-items:center;height:2.95em;padding:0 1.75em 0 2.15em;font-weight:600;flex:none;position:relative;z-index:6}
+.sb>span:first-child{font-size:1.02em;letter-spacing:.01em}
 .sb.dk{color:#fff}
-.sbr{display:flex;gap:.4em;align-items:center}
+.sbr{display:flex;gap:.35em;align-items:center}
 .sbr svg{fill:currentColor}
-.pbody{flex:1;overflow:auto;position:relative;min-height:0}
-.pbody::-webkit-scrollbar{width:0}
+.pbody{flex:1;overflow:auto;position:relative;min-height:0;overscroll-behavior:contain}
+.pbody::-webkit-scrollbar,.msgs::-webkit-scrollbar,.caps::-webkit-scrollbar{width:0}
 [data-choice]{cursor:pointer}
+.homebar{position:absolute;bottom:.45em;left:50%;transform:translateX(-50%);width:8.5em;height:.32em;border-radius:1em;background:#111;opacity:.85;z-index:15}
+.homebar.lt{background:#fff}
 
 /* hotspots */
-.hot{cursor:pointer;border-radius:.3em;outline:.14em dashed transparent;outline-offset:.14em;transition:background .15s}
-.hot:hover{outline-color:rgba(179,38,30,.55)}
-.hot.found{outline:.16em solid #d93025;background:rgba(217,48,37,.12)}
-.hot.missed{outline:.16em dashed #d98a00;background:rgba(217,138,0,.12)}
+.hot{cursor:pointer;border-radius:.35em;outline:.14em dashed transparent;outline-offset:.12em;transition:background .15s,outline-color .15s}
+@media (hover:hover){.hot:hover{outline-color:rgba(179,38,30,.55)}}
+.hot.found{outline:.17em solid #d93025;background:rgba(217,48,37,.12)}
+.hot.missed{outline:.17em dashed #d98a00;background:rgba(217,138,0,.13)}
+.clue{border-radius:.3em;transition:all .25s}
+.reveal .clue{outline:.17em solid #d93025;outline-offset:.1em;background:rgba(217,48,37,.12)}
+.reveal .clue.g{outline-color:#1e8a4c;background:rgba(30,138,76,.12)}
 
 /* call */
-.call{flex:1;display:flex;flex-direction:column;color:#fff;background:linear-gradient(#2c3642,#10151b);min-height:0;position:relative}
-.callin{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:2.4em 1.2em 2.6em}
-.c-lbl{opacity:.75;font-size:1em}
-.avatar{width:6em;height:6em;border-radius:50%;background:#0d6b5c;display:grid;place-items:center;margin:1.4em 0 .9em}
-.avatar svg{width:3.4em;height:3.4em;fill:none;stroke:#fff;stroke-width:1.8}
-.c-name{font-size:1.9em;font-weight:600;line-height:1.15}
-.c-num{opacity:.8;font-size:1.1em;margin-top:.2em}
-.c-btns{margin-top:auto;display:flex;gap:4.2em}
-.cbtn{width:4.5em;height:4.5em;border-radius:50%;border:0;display:grid;place-items:center;color:#fff;background:#2fb457;cursor:pointer}
-.cbtn.red{background:#e0392f}
+.callbg{color:#fff;background:radial-gradient(120% 70% at 50% 0%,#3d5566 0%,#1c2731 55%,#0e1318 100%)}
+.inc{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:1.6em 1.2em 2.4em;min-height:0}
+.inc .lbl{opacity:.7;font-size:.95em}
+.avatar{width:5.6em;height:5.6em;border-radius:50%;background:linear-gradient(#1a8a78,#0b5a4e);display:grid;place-items:center;margin:1.3em 0 .8em;box-shadow:0 0 0 .5em rgba(255,255,255,.06)}
+.avatar .ic{width:2.8em!important;height:2.8em!important;stroke-width:1.5}
+.c-name{font-size:2.05em;font-weight:500;line-height:1.1;letter-spacing:-.01em}
+.c-num{opacity:.75;font-size:1.05em;margin-top:.3em}
+.c-sm{margin-top:auto;display:flex;gap:5.2em;margin-bottom:1.6em}
+.c-sm div{display:flex;flex-direction:column;align-items:center;gap:.35em;font-size:.82em;opacity:.9}
+.c-sm .ic{width:1.6em!important;height:1.6em!important}
+.c-btns{display:flex;gap:4.6em}
+.cbtn{width:4.6em;height:4.6em;border-radius:50%;border:0;display:grid;place-items:center;color:#fff;background:#34c759;cursor:pointer}
+.cbtn.red{background:#ff3b30}
 .cbtn svg{width:2em;height:2em;fill:#fff}
 .cbtn.red svg{transform:rotate(135deg)}
-.c-btnl{font-size:.85em;opacity:.8;margin-top:.4em;text-align:center}
-.ring{animation:ring 1s ease-in-out infinite}
-@keyframes ring{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
-.act{padding-bottom:1em}
-.act .cn{text-align:center;font-size:1.7em;font-weight:600;margin-top:1em}
-.act .ct{text-align:center;opacity:.8;margin-bottom:.8em}
-.caps{margin:.4em 1em;background:rgba(255,255,255,.1);border-radius:1em;padding:.7em .9em;flex:1;overflow:auto;min-height:0}
-.caps .h{font-size:.75em;opacity:.65;margin-bottom:.4em}
-.caps p{margin:.3em 0;opacity:.55;font-size:.95em}
-.caps p:last-child{opacity:1;font-size:1.02em}
+.c-btnl{font-size:.85em;opacity:.85;margin-top:.45em;text-align:center}
+.ring{animation:ring 1.1s ease-in-out infinite}
+@keyframes ring{0%,100%{box-shadow:0 0 0 .5em rgba(255,255,255,.06)}50%{box-shadow:0 0 0 1.1em rgba(255,255,255,0)}}
+.act{padding-bottom:1.4em}
+.act .cn{text-align:center;font-size:1.75em;font-weight:500;margin-top:.7em;line-height:1.15}
+.act .ct{text-align:center;opacity:.7;margin:.15em 0 .7em;font-variant-numeric:tabular-nums}
+.caps{margin:.2em 1.1em .5em;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.1);border-radius:1.1em;padding:.7em .9em;flex:1;overflow:auto;min-height:3em}
+.caps .h{font-size:.72em;opacity:.6;margin-bottom:.35em;text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:.4em}
+.caps .h:before{content:"";width:.5em;height:.5em;border-radius:50%;background:#34c759;animation:blink 1.4s infinite}
+@keyframes blink{50%{opacity:.25}}
+.caps p{margin:.35em 0;opacity:.5;font-size:.95em}
+.caps p:last-child{opacity:1;font-size:1.03em}
 .caps p.me{font-style:italic;color:#bfe3ff}
-.cgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6em 1em;margin:.6em 1.6em;text-align:center;font-size:.8em;opacity:.85}
-.cgrid i{display:block;height:3em;border-radius:50%;background:rgba(255,255,255,.14);width:3em;margin:0 auto .2em}
-.endrow{display:flex;justify-content:center;margin-top:.4em}
-.banner{position:absolute;left:.7em;right:.7em;top:2.8em;z-index:7;background:rgba(245,246,248,.97);color:#111;border-radius:1.1em;padding:.7em .9em;box-shadow:0 .4em 1.2em rgba(0,0,0,.35);animation:drop .45s cubic-bezier(.2,.9,.3,1.1)}
-.banner b{font-size:.8em;color:#555;display:block}
-.banner span{font-size:.95em}
-@keyframes drop{from{transform:translateY(-140%)}to{transform:none}}
+.cgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:.9em 0;margin:.4em 1.4em .9em;text-align:center;font-size:.78em}
+.cgrid div{display:flex;flex-direction:column;align-items:center;gap:.35em;opacity:.95}
+.cgrid i{width:4.2em;height:4.2em;border-radius:50%;background:rgba(255,255,255,.16);display:grid;place-items:center}
+.cgrid i .ic{width:1.9em!important;height:1.9em!important;stroke-width:1.6}
+.endrow{display:flex;justify-content:center}
+.banner{position:absolute;left:.6em;right:.6em;top:3.2em;z-index:12;background:rgba(242,242,247,.96);color:#111;border-radius:1.3em;padding:.75em .9em;box-shadow:0 .5em 1.6em rgba(0,0,0,.4);animation:drop .5s cubic-bezier(.2,.9,.3,1.1);display:flex;gap:.7em;align-items:flex-start}
+.banner .ai{flex:none;width:2.4em;height:2.4em;border-radius:.6em;background:#34c759;display:grid;place-items:center;color:#fff}
+.banner .ai .ic{width:1.4em;height:1.4em}
+.banner .bt{flex:1;min-width:0}
+.banner .bt b{font-size:.92em;display:flex;justify-content:space-between}
+.banner .bt b small{font-weight:400;color:#777}
+.banner .bt span{font-size:.92em;display:block}
+@keyframes drop{from{transform:translateY(-150%)}to{transform:none}}
 
-/* sms / chat */
-.thread{background:#fff;flex:1;display:flex;flex-direction:column;min-height:0}
-.th-h{display:flex;align-items:center;gap:.7em;padding:.4em 1em .7em;border-bottom:1px solid #e3e5e8;flex:none}
-.th-h .av{width:2.4em;height:2.4em;border-radius:50%;background:#c9d1d9;display:grid;place-items:center;font-weight:700;color:#455}
-.th-h b{display:block;line-height:1.2}
-.th-h small{color:#667}
-.callbar{background:#2fb457;color:#fff;text-align:center;font-size:.85em;padding:.25em;flex:none}
-.msgs{padding:1em;display:flex;flex-direction:column;gap:.5em;overflow:auto;flex:1}
-.mt{align-self:center;font-size:.75em;color:#778}
-.bub{max-width:82%;padding:.6em .85em;border-radius:1.15em;background:#e9e9ee;align-self:flex-start;font-size:1.02em;word-wrap:anywhere}
+/* lock screen */
+.lockbg{color:#fff;background:linear-gradient(160deg,#35506a 0%,#20364b 45%,#402f4e 100%)}
+.ls{flex:1;display:flex;flex-direction:column;align-items:center;padding:1em 1em 2em}
+.ls-d{font-size:1.1em;font-weight:500;opacity:.9;margin-top:.8em}
+.ls-t{font-size:5.4em;font-weight:600;line-height:1;letter-spacing:-.02em}
+.ls-n{margin-top:1.4em;width:100%;background:rgba(255,255,255,.2);backdrop-filter:blur(10px);border-radius:1.3em;padding:.8em 1em;display:flex;gap:.7em;align-items:center}
+.ls-n .ai{flex:none;width:2.3em;height:2.3em;border-radius:.6em;background:rgba(255,255,255,.25);display:grid;place-items:center}
+.ls-n b{display:block;font-size:.95em}
+.ls-n span{font-size:.9em;opacity:.9}
+.ls-f{margin-top:auto;display:flex;justify-content:space-between;width:100%;padding:0 1.8em}
+.ls-f i{width:3.2em;height:3.2em;border-radius:50%;background:rgba(255,255,255,.18);display:grid;place-items:center}
+
+/* sms (iMessage-like) */
+.sms{background:#fff}
+.im-h{display:flex;align-items:flex-start;justify-content:space-between;padding:.1em .8em .55em;border-bottom:1px solid #e6e6ea;background:#f7f7f9;flex:none;color:#007aff}
+.im-h .ic{margin-top:.8em}
+.im-who{display:flex;flex-direction:column;align-items:center;color:#111}
+.im-av{width:3em;height:3em;border-radius:50%;background:linear-gradient(#a9b0ba,#858d98);color:#fff;display:grid;place-items:center;font-weight:600;font-size:1.05em}
+.im-name{font-size:.8em;margin-top:.3em;display:flex;align-items:center;gap:.1em}
+.im-name .ic{width:.9em!important;height:.9em!important;margin:0;color:#8e8e93}
+.callbar{background:#34c759;color:#fff;text-align:center;font-size:.82em;padding:.3em;flex:none;font-weight:600}
+.msgs{padding:.8em .9em 1em;display:flex;flex-direction:column;gap:.45em;overflow:auto;flex:1;min-height:0}
+.mt{align-self:center;font-size:.72em;color:#8e8e93;text-align:center;margin-bottom:.3em}
+.mt b{font-weight:600}
+.bub{max-width:80%;padding:.55em .85em;border-radius:1.2em;background:#e9e9eb;align-self:flex-start;font-size:1em;word-wrap:anywhere;position:relative}
 .bub a,.bub u{color:#0a5bd6}
-.wa{background:#e8dfd3}
-.wa .bub{background:#fff;box-shadow:0 1px 1px rgba(0,0,0,.12);border-radius:.7em}
-.wa .msgs{background:#e8dfd3}
-.wa .th-h{background:#0f6f5f;color:#fff;border:0}
-.wa .th-h small{color:#cfe}
-.wa .th-h .av{background:#9fb}
-.mtime{display:block;text-align:right;font-size:.72em;color:#889;margin-top:.15em}
+.im-unk{align-self:center;text-align:center;font-size:.75em;color:#8e8e93;margin-top:.6em;line-height:1.4}
+.im-unk u{color:#007aff;text-decoration:none}
+.im-in{display:flex;align-items:center;gap:.6em;padding:.5em .8em 1.5em;flex:none;color:#8e8e93}
+.im-in .pl{width:2.1em;height:2.1em;border-radius:50%;background:#e9e9eb;display:grid;place-items:center}
+.im-in .pl .ic{width:1.1em!important;height:1.1em!important}
+.im-in span.f{flex:1;border:1px solid #d1d1d6;border-radius:1.2em;padding:.35em .9em;font-size:.92em;display:flex;justify-content:space-between;align-items:center}
+
+/* whatsapp-like chat */
+.wa{background:#efe7dd}
+.wa-h{display:flex;align-items:center;gap:.55em;padding:.25em .7em .6em;background:#f6f6f6;color:#111;border-bottom:1px solid #ddd;flex:none}
+.wa-h .ic{color:#007aff}
+.wa-h .av{width:2.3em;height:2.3em;border-radius:50%;background:#cfd8dc;display:grid;place-items:center;color:#fff;flex:none}
+.wa-h .av .ic{color:#fff;width:1.5em!important;height:1.5em!important}
+.wa-h .nm{flex:1;min-width:0;line-height:1.2}
+.wa-h .nm b{display:block;font-size:.95em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wa-h .nm small{color:#667;font-size:.76em}
+.wa .msgs{background:#efe7dd;background-image:radial-gradient(rgba(120,100,70,.08) 1px,transparent 1.2px);background-size:1.1em 1.1em}
+.wa .bub{background:#fff;border-radius:.75em;border-top-left-radius:.2em;box-shadow:0 1px .5px rgba(0,0,0,.13);padding:.4em .6em .3em}
+.wa-sys{align-self:center;background:#fdf4c5;color:#54524a;font-size:.72em;text-align:center;border-radius:.6em;padding:.45em .8em;max-width:88%;line-height:1.35;box-shadow:0 1px .5px rgba(0,0,0,.08)}
+.wa-sys .ic{width:1em!important;height:1em!important;vertical-align:-.12em}
+.wa-unk{align-self:stretch;background:#fff;border-radius:.8em;padding:.6em .8em;text-align:center;font-size:.8em;color:#445;box-shadow:0 1px .5px rgba(0,0,0,.1)}
+.wa-unk div{display:flex;gap:.6em;margin-top:.5em}
+.wa-unk span{flex:1;border-radius:.6em;padding:.35em;background:#f1f3f4;font-weight:600}
+.wa-unk span.r{color:#d93025}
+.wa-unk span.g{color:#1a8f5a}
+.mtime{display:block;text-align:right;font-size:.7em;color:#8a8f94;margin-top:.1em}
+.wa-in{display:flex;align-items:center;gap:.6em;padding:.45em .7em 1.5em;background:#f6f6f6;flex:none;color:#007aff}
+.wa-in span{flex:1;background:#fff;border:1px solid #ddd;border-radius:1.2em;padding:.35em .9em;color:#999;font-size:.9em}
+
+/* mail */
+.mail{background:#fff}
+.ml-t{display:flex;align-items:center;gap:1.1em;padding:.2em 1em .5em;color:#444;flex:none}
+.ml-t .sp{flex:1}
+.ml-h{padding:.3em 1em .8em;flex:none}
+.ml-h .subj{font-size:1.25em;line-height:1.25;font-weight:500}
+.ml-h .subj small{display:inline-block;font-size:.58em;background:#e8eaed;color:#444;border-radius:.3em;padding:.05em .45em;vertical-align:.25em;margin-left:.3em;font-weight:500}
+.ml-fr{display:flex;gap:.7em;align-items:flex-start;margin-top:.9em}
+.ml-av{width:2.5em;height:2.5em;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:600;flex:none}
+.ml-fr .w{flex:1;min-width:0;line-height:1.25}
+.ml-fr .w b{font-weight:600;font-size:.95em}
+.ml-fr .w b small{font-weight:400;color:#666;margin-left:.35em}
+.ml-fr .w .ad{display:block;font-size:.8em;color:#5f6368;word-break:break-all}
+.ml-fr .w .to{display:block;font-size:.8em;color:#5f6368}
+.ml-fr>.ic{color:#555;margin-top:.3em}
+.ml-b{padding:.2em 1em 1em;overflow:auto;flex:1;font-size:.98em;min-height:0}
+.ml-b p{margin:.55em 0}
+.ml-b .cta{display:inline-block;background:#1a73e8;color:#fff;padding:.6em 1.2em;border-radius:.45em;margin:.4em 0;font-weight:600}
+.att{margin-top:.6em;border:1px solid #dadce0;border-radius:.6em;padding:.5em .7em;display:inline-flex;gap:.5em;align-items:center;font-size:.88em}
+.att i{width:1.8em;height:2.2em;background:#ea4335;border-radius:.2em;color:#fff;font-style:normal;font-size:.62em;font-weight:700;display:grid;place-items:center}
+.ml-f{display:flex;gap:.6em;padding:.5em 1em 1.6em;flex:none}
+.ml-f span{flex:1;border:1px solid #dadce0;border-radius:2em;padding:.5em;display:flex;align-items:center;justify-content:center;gap:.4em;font-size:.88em;font-weight:500;color:#333}
 
 /* bank */
-.bank{flex:1;background:#f1f4f6;display:flex;flex-direction:column;min-height:0;position:relative}
-.bk-h{background:#0d6b5c;color:#fff;padding:.3em 1.1em 1.1em;flex:none}
-.bk-h .l{display:flex;align-items:center;gap:.5em;font-weight:700;font-size:1.1em}
-.bk-h .l i{width:1.5em;height:1.5em;border-radius:50%;background:#fff;display:inline-block;position:relative}
-.bk-h .l i:after{content:"";position:absolute;inset:.35em;border-radius:50%;border:.2em solid #0d6b5c;border-right-color:transparent}
-.bk-h .lbl{opacity:.85;font-size:.85em;margin-top:1em}
-.bal{font-size:2.3em;font-weight:700;line-height:1.1}
-.bk-l{padding:.8em 1em;display:grid;gap:.5em;overflow:auto}
-.tx{background:#fff;border-radius:.8em;padding:.6em .8em;display:flex;justify-content:space-between;gap:.6em;font-size:.95em}
-.tx small{color:#667;display:block}
+.bank{background:#eef2f3}
+.bk-h{background:linear-gradient(160deg,#0f7466,#08473f);color:#fff;padding:0 1.1em 1.1em;flex:none}
+.bk-top{display:flex;align-items:center;justify-content:space-between;padding:.2em 0 .8em}
+.bk-top .l{display:flex;align-items:center;gap:.5em;font-weight:700}
+.bk-top .l i{width:1.7em;height:1.7em;border-radius:50%;background:#fff;color:#0d6b5c;display:grid;place-items:center}
+.bk-top .l i .ic{width:1.1em!important;height:1.1em!important;stroke-width:2.2}
+.bk-top small{opacity:.85}
+.bk-card{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:1em;padding:.8em 1em}
+.bk-card small{display:block;opacity:.85;font-size:.8em}
+.bal{font-size:2.1em;font-weight:700;line-height:1.15;margin:.1em 0;font-variant-numeric:tabular-nums}
+.bk-q{display:grid;grid-template-columns:repeat(4,1fr);gap:.4em;padding:.8em 1em .2em;text-align:center;font-size:.75em;color:#234;flex:none}
+.bk-q i{width:3.1em;height:3.1em;border-radius:1em;background:#fff;display:grid;place-items:center;margin:0 auto .3em;color:#0d6b5c;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.bk-q i .ic{width:1.5em!important;height:1.5em!important}
+.bk-l{padding:.7em 1em;display:grid;gap:.45em;overflow:auto;align-content:start;flex:1;min-height:0}
+.bk-l .lh{font-size:.8em;font-weight:700;color:#445;text-transform:uppercase;letter-spacing:.05em}
+.tx{background:#fff;border-radius:.9em;padding:.6em .8em;display:flex;align-items:center;gap:.65em;font-size:.92em}
+.tx .ti{flex:none;width:2.2em;height:2.2em;border-radius:50%;background:#eef2f3;display:grid;place-items:center;color:#456}
+.tx .ti .ic{width:1.15em!important;height:1.15em!important}
+.tx .td{flex:1;min-width:0}
+.tx small{color:#667;display:block;font-size:.85em}
 .tx .neg{color:#b3261e;font-weight:700;white-space:nowrap}
 .tx .pos{color:#17673d;font-weight:700;white-space:nowrap}
-.tx.new{animation:pop .5s .9s both;border:2px solid #d93025}
-.rc{background:#0b1f1a;color:#9ff0c9;padding:.6em 1em;font-size:.85em;flex:none}
+.tx.new{animation:pop .5s .9s both;box-shadow:0 0 0 .15em #d93025}
+.tx.new .ti{background:#fde3e0;color:#b3261e}
+.rc{background:#b3261e;color:#fff;padding:.45em 1em;font-size:.8em;font-weight:600;flex:none;display:flex;align-items:center;gap:.5em}
+.rc:before{content:"";width:.55em;height:.55em;border-radius:50%;background:#fff;animation:blink 1s infinite}
+.tabbar{display:flex;justify-content:space-around;padding:.45em 0 1.6em;background:#fff;border-top:1px solid #dde3e6;font-size:.68em;color:#778;flex:none}
+.tabbar div{display:flex;flex-direction:column;align-items:center;gap:.2em}
+.tabbar .on{color:#0d6b5c;font-weight:600}
+.tabbar .ic{width:1.9em!important;height:1.9em!important}
 
-/* facebook-like */
-.fb{background:#e9ebee;flex:1;display:flex;flex-direction:column;min-height:0}
-.fb-h{background:#fff;padding:.3em 1em .5em;font-weight:800;color:#1b5ad6;font-size:1.3em;border-bottom:1px solid #d8dbe0;flex:none}
-.post{background:#fff;margin-bottom:.6em}
-.p-h{display:flex;gap:.6em;padding:.7em .9em 0;align-items:center}
-.p-av{width:2.6em;height:2.6em;border-radius:50%;background:#1c7d5b;color:#fff;display:grid;place-items:center;font-weight:700;flex:none}
-.p-h b{display:block;line-height:1.2}
-.p-h small{color:#65676b;display:block;font-size:.8em;line-height:1.3}
-.p-t{padding:.6em .9em;font-size:1em}
+/* social feed */
+.fb{background:#e4e6ea}
+.fb-h{background:#fff;padding:.1em 1em .55em;display:flex;align-items:center;justify-content:space-between;flex:none}
+.fb-h b{font-size:1.45em;font-weight:800;color:#1b4fd6;letter-spacing:-.02em}
+.fb-h span{display:flex;gap:.5em}
+.fb-h i{width:2.2em;height:2.2em;border-radius:50%;background:#e9eaee;display:grid;place-items:center;color:#111}
+.fb-h i .ic{width:1.15em!important;height:1.15em!important}
+.post{background:#fff;margin-bottom:.5em}
+.p-h{display:flex;gap:.6em;padding:.7em .9em 0;align-items:flex-start}
+.p-av{width:2.6em;height:2.6em;border-radius:50%;background:#1c7d5b;color:#fff;display:grid;place-items:center;font-weight:700;flex:none;font-size:.95em}
+.p-h .w{flex:1;min-width:0}
+.p-h b{line-height:1.2;font-size:.97em}
+.p-h .fl{color:#1b4fd6;font-weight:600;font-size:.9em}
+.p-h small{color:#65676b;display:block;font-size:.8em;line-height:1.35}
+.p-h small .ic{width:.95em!important;height:.95em!important;vertical-align:-.15em}
+.p-h>.ic{color:#65676b}
+.p-t{padding:.55em .9em .65em;font-size:.98em}
+.p-t .more{color:#65676b;font-weight:600}
 .vid{display:block;width:100%;height:auto}
-.vwrap{position:relative}
+.vwrap{position:relative;display:block}
 .vwrap .play{position:absolute;inset:0;display:grid;place-items:center}
-.vwrap .play i{width:3.2em;height:3.2em;border-radius:50%;background:rgba(0,0,0,.5);display:grid;place-items:center}
+.vwrap .play i{width:3.4em;height:3.4em;border-radius:50%;background:rgba(0,0,0,.55);display:grid;place-items:center}
 .vwrap .play i:after{content:"";border-left:1.1em solid #fff;border-top:.7em solid transparent;border-bottom:.7em solid transparent;margin-left:.25em}
-.sub-bar{position:absolute;left:.5em;right:.5em;bottom:.6em;background:rgba(0,0,0,.6);color:#fff;text-align:center;padding:.25em .5em;font-size:.9em;border-radius:.3em}
+.vwrap .dur{position:absolute;left:.6em;bottom:3em;background:rgba(0,0,0,.6);color:#fff;font-size:.72em;padding:.1em .45em;border-radius:.3em}
+.sub-bar{position:absolute;left:.5em;right:.5em;bottom:.6em;background:rgba(0,0,0,.7);color:#fff;text-align:center;padding:.25em .5em;font-size:.86em;border-radius:.3em}
 .lk{background:#f0f2f5;padding:.6em .9em;display:flex;justify-content:space-between;align-items:center;gap:.6em}
-.lk small{color:#65676b;display:block;font-size:.78em}
+.lk small{color:#65676b;display:block;font-size:.75em;letter-spacing:.02em}
 .lk b{display:block;line-height:1.25;font-size:.95em}
-.lk .go{background:#dfe3e8;border-radius:.4em;padding:.4em .7em;font-weight:700;font-size:.9em;flex:none}
-.react{display:flex;justify-content:space-between;padding:.5em .9em;color:#65676b;font-size:.85em}
-.acts{display:flex;justify-content:space-around;border-top:1px solid #dde;padding:.5em;color:#65676b;font-weight:600;font-size:.9em}
-.cmt{display:flex;gap:.5em;padding:.4em .9em}
-.cmt .p-av{width:2em;height:2em;font-size:.85em;background:#9aa4ae}
-.cmt div{background:#f0f2f5;border-radius:1em;padding:.35em .7em;font-size:.92em}
+.lk .go{background:#dfe3e8;border-radius:.45em;padding:.45em .8em;font-weight:700;font-size:.88em;flex:none}
+.react{display:flex;justify-content:space-between;align-items:center;padding:.5em .9em;color:#65676b;font-size:.82em}
+.react .rx{display:flex;align-items:center;gap:.35em}
+.rx i{width:1.35em;height:1.35em;border-radius:50%;display:grid;place-items:center;color:#fff;margin-right:-.4em;border:.12em solid #fff}
+.rx i .ic{width:.8em!important;height:.8em!important;stroke-width:2.4}
+.rx i.l{background:#1b74e4}.rx i.h{background:#f33e58}.rx i.s{background:#f7b928}
+.rx span{margin-left:.5em}
+.acts{display:flex;justify-content:space-around;border-top:1px solid #e4e6ea;padding:.45em .5em;color:#65676b;font-weight:600;font-size:.85em}
+.acts span{display:flex;align-items:center;gap:.35em}
+.cmt{display:flex;gap:.5em;padding:.35em .9em}
+.cmt .p-av{width:2em;height:2em;font-size:.8em;background:#b0b8c1}
+.cmt>div:last-child{background:#f0f2f5;border-radius:1em;padding:.35em .75em;font-size:.9em}
 .cmt b{display:block;font-size:.85em}
+.cmt small{display:block;color:#65676b;font-size:.75em;margin-top:.15em}
 
-/* browser */
-.br{background:#fff;flex:1;display:flex;flex-direction:column;min-height:0}
-.br-bar{background:#eceff3;padding:.3em .7em .5em;flex:none}
-.br-url{background:#fff;border-radius:2em;padding:.35em .9em;font-size:.9em;display:flex;gap:.4em;align-items:center;border:1px solid #d5d9de}
-.lock{width:.9em;height:.9em;flex:none}
-.lp{padding:0 0 1em}
-.lp .cd{background:#d93025;color:#fff;text-align:center;padding:.4em;font-weight:700}
-.lp h4{margin:.8em 1em .3em;font-size:1.35em;line-height:1.2;color:#0b3d2e}
-.lp .bot{display:flex;gap:.8em;align-items:center;margin:.6em 1em}
-.lp .price{font-size:1.5em;font-weight:800;color:#d93025}
-.lp .price s{color:#889;font-size:.65em;font-weight:400}
-.badge{display:inline-block;border:.15em solid #1c7d5b;color:#1c7d5b;border-radius:.4em;padding:.15em .5em;font-weight:700;font-size:.85em;margin:.2em 1em}
-.tst{margin:.6em 1em;padding:.5em .7em;background:#f4f8f5;border-radius:.6em;font-size:.92em}
-.form{margin:.6em 1em;display:grid;gap:.4em}
-.form div{border:1px solid #c7cdd3;border-radius:.4em;padding:.4em .6em;font-size:.92em;background:#fafbfc;color:#334}
-.fine{font-size:.62em;color:#9aa1a8;margin:.6em 1em 0;line-height:1.3}
+/* browser / landing */
+.br{background:#fff}
+.br-bar{background:#f2f2f5;padding:.15em .7em .55em;flex:none;border-bottom:1px solid #e1e1e6}
+.br-url{background:#e3e3e8;border-radius:.8em;padding:.4em .9em;font-size:.9em;display:flex;gap:.4em;align-items:center;justify-content:center;color:#222}
+.br-url .ic{width:1em!important;height:1em!important;color:#555}
+.lp{padding:0 0 6em}
+.lp .cd{background:#d93025;color:#fff;text-align:center;padding:.45em;font-weight:600;font-size:.92em}
+.lp .cd b{font-variant-numeric:tabular-nums;background:rgba(0,0,0,.2);padding:.05em .4em;border-radius:.3em}
+.lp-shop{display:flex;justify-content:space-between;align-items:center;padding:.6em 1em;border-bottom:1px solid #eee;font-weight:800;color:#0b5a3f;font-size:1.05em}
+.lp-shop small{font-weight:500;color:#777;font-size:.7em}
+.lp h4{margin:.7em 1em .3em;font-size:1.35em;line-height:1.2;color:#0b3d2e;font-family:Georgia,serif}
+.asseen{margin:.4em 1em;display:flex;align-items:center;gap:.5em;flex-wrap:wrap;color:#888;font-size:.78em}
+.asseen span{border:1px solid #ccc;border-radius:.25em;padding:.05em .45em;font-weight:800;color:#666;font-style:italic}
+.lp .bot{display:flex;gap:.8em;align-items:center;margin:.5em 1em}
+.stars{color:#f5a623;font-size:.95em;letter-spacing:.05em}
+.stars small{color:#667;letter-spacing:0}
+.lp .price{font-size:1.55em;font-weight:800;color:#d93025;line-height:1.2}
+.lp .price s{color:#889;font-size:.6em;font-weight:400}
+.badge{display:inline-flex;align-items:center;gap:.3em;border:.14em solid #1c7d5b;color:#1c7d5b;border-radius:.45em;padding:.15em .5em;font-weight:700;font-size:.85em;margin:.2em 1em}
+.badge .ic{width:1em!important;height:1em!important;stroke-width:2.6}
+.tst{margin:.6em 1em;padding:.55em .75em;background:#f4f8f5;border-radius:.7em;font-size:.9em}
+.tst small{display:block;color:#667;margin-top:.2em}
+.form{margin:.7em 1em;display:grid;gap:.45em}
+.form label{font-size:.72em;color:#556;display:block;margin-bottom:.1em}
+.form div div{border:1px solid #c7cdd3;border-radius:.45em;padding:.45em .6em;font-size:.9em;background:#fafbfc;color:#334}
+.buy{margin:.3em 1em;background:#16a34a;color:#fff;text-align:center;border-radius:.6em;padding:.7em;font-weight:800;font-size:1.02em}
+.fine{font-size:.6em;color:#9aa1a8;margin:.7em 1em 0;line-height:1.35}
+.fomo{position:absolute;left:.7em;right:.7em;bottom:4.9em;z-index:8;background:#fff;border-radius:.9em;box-shadow:0 .4em 1.4em rgba(0,0,0,.25);padding:.55em .8em;font-size:.85em;display:flex;gap:.6em;align-items:center;animation:pop .5s 1.2s both}
+.fomo i{flex:none;width:2.3em;height:2.3em;border-radius:.5em;background:#e9f6ee;display:grid;place-items:center;color:#1c7d5b}
+.fomo small{display:block;color:#889;font-size:.85em}
 
 /* charity */
-.chs{background:#e9ebee;flex:1;overflow:auto}
-.tagAB{display:inline-block;background:#15202b;color:#fff;font-weight:700;border-radius:.4em;padding:.1em .6em;margin:.5em .9em 0;font-size:.9em}
+.chs{background:#e4e6ea}
+.tagAB{display:inline-block;background:#15202b;color:#fff;font-weight:700;border-radius:.45em;padding:.15em .7em;margin:.6em .9em 0;font-size:.85em;letter-spacing:.04em}
 .cimg{display:block;width:100%;height:auto}
-.acct{margin:.4em .9em;padding:.5em .7em;background:#f0f2f5;border-radius:.5em;font-size:.95em}
-.acct b{display:block}
-.facts{margin:.2em .9em .6em;padding-left:1.1em;font-size:.95em}
-.facts li{margin:.15em 0}
-
-/* email */
-.mail{background:#fff;flex:1;display:flex;flex-direction:column;min-height:0}
-.mail-h{padding:.4em 1em .7em;border-bottom:1px solid #e3e5e8;flex:none}
-.mail-h .subj{font-weight:700;font-size:1.15em;line-height:1.25}
-.mail-h .fr{display:flex;gap:.6em;margin-top:.6em;align-items:center}
-.mail-h .fr small{color:#667;display:block}
-.mail-b{padding:1em;overflow:auto;flex:1;font-size:1em}
-.mail-b .cta{display:inline-block;background:#1a73e8;color:#fff;padding:.55em 1.1em;border-radius:.4em;margin:.5em 0;font-weight:600}
-.att{margin-top:.8em;border:1px solid #d5d9de;border-radius:.5em;padding:.5em .7em;display:inline-block;font-size:.9em}
+.raise{margin:.2em .9em .5em;font-size:.85em}
+.raise .bar{height:.5em;border-radius:1em;background:#e4e6ea;overflow:hidden;margin:.3em 0}
+.raise .bar i{display:block;height:100%;background:#f33e58}
+.acct{margin:.4em .9em;padding:.55em .75em;background:#f0f2f5;border-radius:.6em;font-size:.93em}
+.acct b{display:block;font-size:.85em;color:#555}
+.acct small{color:#667}
+.facts{margin:.2em .9em .5em;padding-left:1.1em;font-size:.93em}
+.facts li{margin:.2em 0}
 
 .toast{position:fixed;left:50%;bottom:1rem;transform:translateX(-50%);background:#15202b;color:#fff;padding:.6rem 1rem;border-radius:.6rem;font-size:.9rem;z-index:50}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -261,78 +500,139 @@ details.help li{margin:.3rem 0}
 <a class="skip" href="#main">Přeskočit na obsah</a>
 
 <header class="top">
-  <div>
-    <h1>Podvod, nebo ne?</h1>
-    <p class="sub">Bezpečný trenažér. Vyzkoušíte si, jak dnešní podvody vypadají zevnitř – a nic vás to nestojí.</p>
-  </div>
-  <div class="opts">
-    <button class="tog" id="tBig" aria-pressed="false">Větší zobrazení</button>
-    <button class="tog" id="tSnd" aria-pressed="true">Zvuk</button>
-    <button class="tog" id="tVoice" aria-pressed="false">Hlas volajícího</button>
+  <div class="wrap">
+    <button class="brand" data-menu aria-label="Podvod, nebo ne? – zpět na úvod">
+      <span class="mk"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></span>
+      <span><b>Podvod, nebo ne?</b><small>Bezpečný trenažér</small></span>
+    </button>
+    <div class="opts">
+      <button class="tog" id="tBig" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24"><path d="M4 18L9 6l5 12M5.8 14h6.4M15 18l3-7 3 7M16 16h4"/></svg><span class="d">Větší písmo</span><span class="m">Písmo</span></button>
+      <button class="tog" id="tSnd" aria-pressed="true"><svg class="ic" viewBox="0 0 24 24"><path d="M4 9h3l5-4v14l-5-4H4z"/><path d="M16 9a4 4 0 010 6M18.5 6.5a8 8 0 010 11"/></svg>Zvuk</button>
+      <button class="tog" id="tVoice" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg>Hlas<span class="d">&nbsp;volajícího</span></button>
+    </div>
   </div>
 </header>
 
-<main id="main">
+<main id="main" class="wrap">
   <section id="menu">
-    <p class="lead">Vyberte situaci. Vy jste ten, komu zazvoní telefon nebo přijde zpráva. Rozhodujete sami.</p>
+    <div class="hero">
+      <div>
+        <span class="eyebrow"><svg class="ic" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>Nic se neodesílá, nic se neukládá</span>
+        <h1>Podvod, nebo ne?</h1>
+        <p class="lead">Vyzkoušejte si na nečisto, jak dnešní podvody vypadají zevnitř. Zazvoní vám telefon, přijde zpráva, objeví se reklama – a rozhodujete jen vy.</p>
+        <ol class="how">
+          <li><i>1</i><span>Vyberte si situaci. Telefon na obrazovce se chová jako ten váš.</span></li>
+          <li><i>2</i><span>Rozhodujte se a klepejte na všechno, co vám připadá podezřelé.</span></li>
+          <li><i>3</i><span>Vedle telefonu uvidíte, na co podvodník spoléhal a jak se bránit.</span></li>
+        </ol>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="ha-card"><div class="ha-from"><i>?</i>+420 776 118 204</div><div class="ha-bub">Vaše zásilka je zadržena. Doplaťte 39 Kč do 24 hodin: <u>posta-doruceni.top/cz</u></div></div>
+        <div class="ha-card ha-2"><div class="ha-from"><i style="background:#0f6e63">V</i>Vltava banka</div><div class="ha-bub">Připomínáme: výpis za září je připraven v aplikaci. Přihlaste se jako obvykle.</div></div>
+        <span class="stamp s-bad">Podvod</span><span class="stamp s-ok">V pořádku</span>
+      </div>
+    </div>
+
+    <div class="sec-h"><h2>Vyberte situaci</h2><p>Každá trvá 3–5 minut</p></div>
     <div class="modes">
       <button class="mode m-call" data-start="call">
-        <span class="mh">Telefonát „z banky“</span><span class="md">Zvoní telefon. Na displeji je číslo vaší banky. Co uděláte?</span><span class="min">asi 4 minuty</span>
+        <span class="mt"><span class="mi"><svg class="ic" viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.2 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z"/></svg></span><span class="min">asi 4 minuty</span></span>
+        <span><span class="mh">Telefonát „z banky“</span><span class="md">Zvoní telefon a na displeji svítí jméno vaší banky. Hlas je klidný, profesionální a spěchá.</span></span>
+        <span class="ml"><span>Podvržené číslo</span><span>Kód z SMS</span><span>Vzdálený přístup</span></span>
+        <span class="go">Přijmout hovor <svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
       </button>
       <button class="mode m-fb" data-start="fb">
-        <span class="mh">Reklama na zázračný lék</span><span class="md">Na Facebooku vidíte video s lékařem. Poznáte, co je na něm špatně?</span><span class="min">asi 4 minuty</span>
+        <span class="mt"><span class="mi"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9.5v5l4.5-2.5z"/></svg></span><span class="min">asi 4 minuty</span></span>
+        <span><span class="mh">Reklama na zázračný lék</span><span class="md">Na sociální síti vidíte video se známým lékařem. Poznáte, co je na něm i na e-shopu špatně?</span></span>
+        <span class="ml"><span>Deepfake video</span><span>Falešný e-shop</span><span>Skryté předplatné</span></span>
+        <span class="go">Otevřít příspěvek <svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
       </button>
       <button class="mode m-ch" data-start="charity">
-        <span class="mh">Sbírka na nemocné dítě</span><span class="md">Dvě sbírky, dva příběhy. Kterou z nich byste podpořili?</span><span class="min">asi 3 minuty</span>
+        <span class="mt"><span class="mi"><svg class="ic" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z"/></svg></span><span class="min">asi 3 minuty</span></span>
+        <span><span class="mh">Sbírka na nemocné dítě</span><span class="md">Dvě sbírky, dva dojemné příběhy. Kterou byste podpořili – a podle čeho to poznat?</span></span>
+        <span class="ml"><span>Srovnání A/B</span><span>Transparentní účet</span><span>Hlasování v sále</span></span>
+        <span class="go">Porovnat sbírky <svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
       </button>
       <button class="mode m-quiz" data-start="quiz">
-        <span class="mh">Rychlé kolo</span><span class="md">Osm zpráv, u každé jedno rozhodnutí: podvod, nebo ne?</span><span class="min">asi 5 minut</span>
+        <span class="mt"><span class="mi"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="15" rx="2"/><path d="M8 3h11a2 2 0 012 2v13"/></svg></span><span class="min">asi 5 minut</span></span>
+        <span><span class="mh">Rychlé kolo</span><span class="md">Deset zpráv, jaké chodí každý den. U každé jedno rozhodnutí: podvod, nebo v pořádku?</span></span>
+        <span class="ml"><span>SMS</span><span>E-mail</span><span>WhatsApp</span><span>Hovor</span></span>
+        <span class="go">Začít kolo <svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
       </button>
     </div>
-    <p class="rule"><b>Jedno pravidlo na všechno:</b> když vás někdo honí, zpomalte. Pak si věc ověřte jinou cestou, než vám nabídli – například na čísle, které už znáte.</p>
-    <details class="help">
-      <summary>Co dělat, když se to opravdu stane</summary>
-      <ol>
-        <li>Ihned zavolejte do banky na číslo z platební karty nebo z aplikace. Požádejte o zablokování účtu a karty. Čím dřív, tím větší šance, že banka platbu zastaví.</li>
-        <li>Zavolejte policii na 158 nebo podejte oznámení na nejbližším oddělení.</li>
-        <li>Uschovejte důkazy: SMS, e-maily, číslo volajícího, čas hovoru, snímky obrazovky.</li>
-        <li>Řekněte to někomu blízkému. Nestyďte se – oklamat se dají i odborníci.</li>
+
+    <section class="rule" aria-labelledby="ruleH">
+      <div>
+        <h2 id="ruleH">Když vás někdo honí, <em>zpomalte.</em></h2>
+        <p>Skoro každý podvod stojí na tom, že nemáte čas přemýšlet. Než cokoli uděláte, položte si tři otázky – a věc si ověřte jinou cestou, než vám nabídli. Třeba na čísle, které už znáte.</p>
+      </div>
+      <ol class="three" id="threeList"></ol>
+    </section>
+
+    <section class="help" aria-labelledby="helpH">
+      <div class="sec-h"><h2 id="helpH">Co dělat, když se to opravdu stane</h2></div>
+      <ol class="steps">
+        <li><b>Volejte banku</b>Na číslo z platební karty nebo z aplikace. Nechte zablokovat účet i kartu. Čím dřív, tím větší šance, že platbu zastaví.</li>
+        <li><b>Nahlaste to policii</b>Zavolejte na 158 nebo zajděte na nejbližší oddělení. Oznámení pomůže i ostatním.</li>
+        <li><b>Uschovejte důkazy</b>SMS, e-maily, číslo volajícího, čas hovoru, snímky obrazovky. Nic nemažte.</li>
+        <li><b>Řekněte to blízkým</b>Nestyďte se. Oklamat se dají i bankéři a policisté – podvodníci to dělají každý den.</li>
       </ol>
-    </details>
+      <details class="pres">
+        <summary>Pro přednášející</summary>
+        <ul>
+          <li><b>Větší písmo</b> zvětší telefon i text pro projektor. Totéž zapne adresa s <code>?velke=1</code>.</li>
+          <li><b>Hlas volajícího</b> čte repliky „bankéře“ nahlas (hlas prohlížeče, při každém hovoru jiný).</li>
+          <li>U <b>sbírky</b> nechte sál nejdřív hlasovat (A, B, nebo ověřit), teprve pak klepněte na volbu.</li>
+          <li>Stránka po načtení funguje i bez internetu.</li>
+        </ul>
+      </details>
+    </section>
   </section>
 
   <section id="stage" hidden aria-live="off">
     <div class="stage-top">
-      <button class="btn ghost" id="back">Zpět do nabídky</button>
+      <button class="btn ghost sm" id="back"><svg class="ic" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>Nabídka</button>
       <h2 id="stTitle"></h2>
     </div>
     <div class="grid">
       <div class="phone-col">
-        <div class="phone" aria-label="Simulovaný telefon">
-          <div class="notch"></div>
+        <div class="phone" id="phone" aria-label="Simulovaný telefon">
+          <div class="island"></div>
           <div class="screen" id="screen"></div>
         </div>
-        <div class="tray" id="tray"></div>
       </div>
+      <div class="side">
+      <div class="tray" id="tray"></div>
       <aside class="coach" id="coach" aria-live="polite">
-        <h3>Na co si dát pozor</h3>
-        <p class="pnote">Podvodníci sahají po stále stejných pákách. Sledujte, které právě použili:</p>
-        <div class="pressure" id="pressure"></div>
-        <ul class="notes" id="notes"></ul>
-        <p class="empty" id="emptyNote">Zatím nic. Sledujte telefon a rozhodujte se.</p>
+        <section>
+          <h3><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.5"/></svg>Situace</h3>
+          <p class="sit" id="sit"></p>
+        </section>
         <div id="verdict"></div>
+        <section>
+          <h3><svg class="ic" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Páky, které podvodník použil</h3>
+          <div class="pressure" id="pressure"></div>
+        </section>
+        <section>
+          <h3><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>Na co si dát pozor</h3>
+          <ul class="notes" id="notes"></ul>
+          <p class="empty" id="emptyNote">Zatím nic. Sledujte telefon a rozhodujte se.</p>
+        </section>
+        <details class="levers"><summary>Co jednotlivé páky znamenají</summary><dl id="leverList"></dl></details>
       </aside>
+      </div>
     </div>
   </section>
 </main>
 
-<footer>Všechny osoby, firmy, čísla a webové adresy v simulátoru jsou smyšlené. Nic se neodesílá ani neukládá, stránka nepoužívá cookies ani externí služby a po načtení funguje i bez internetu.</footer>
+<footer><div class="wrap"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.5"/></svg><span>Všechny osoby, firmy, čísla a webové adresy v simulátoru jsou smyšlené. Nic se neodesílá ani neukládá, stránka nepoužívá cookies ani externí služby a po načtení funguje i bez internetu.</span></div></footer>
 
 <script>
 (()=>{
 'use strict';
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const narrow=()=>matchMedia('(max-width:720px)').matches;
 const S={key:null,scn:null,id:null,node:null,found:new Set(),notes:[],tags:new Set(),log:[],sound:true,voice:false,t0:0,q:null};
 
 /* ---------- sound / voice ---------- */
@@ -382,75 +682,123 @@ function speak(t){
 try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();}catch(e){}
 function hush(){try{speechSynthesis&&speechSynthesis.cancel();}catch(e){}}
 
+/* ---------- icons ---------- */
+const IC={
+  back:'<path d="M15 5l-7 7 7 7"/>',chev:'<path d="M9 5l7 7-7 7"/>',
+  micoff:'<path d="M9 9v2a3 3 0 005 2.2M15 10V6a3 3 0 00-5.8-1"/><path d="M5 11a7 7 0 0011.5 5.3M19 11a7 7 0 01-.4 2.3M12 18v3M3 3l18 18"/>',
+  keypad:'<g fill="currentColor" stroke="none"><circle cx="6" cy="4.5" r="1.7"/><circle cx="12" cy="4.5" r="1.7"/><circle cx="18" cy="4.5" r="1.7"/><circle cx="6" cy="10" r="1.7"/><circle cx="12" cy="10" r="1.7"/><circle cx="18" cy="10" r="1.7"/><circle cx="6" cy="15.5" r="1.7"/><circle cx="12" cy="15.5" r="1.7"/><circle cx="18" cy="15.5" r="1.7"/><circle cx="12" cy="21" r="1.7"/></g>',
+  speaker:'<path d="M4 9h3l5-4v14l-5-4H4z"/><path d="M16 9a4 4 0 010 6M18.5 6.5a8 8 0 010 11"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',video:'<rect x="3" y="7" width="12" height="10" rx="2"/><path d="M15 10.5l6-3.5v10l-6-3.5"/>',
+  person:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',msg:'<path d="M4 5h16v11H9l-5 4z"/>',
+  clock:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
+  dots:'<g fill="currentColor" stroke="none"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></g>',
+  x:'<path d="M6 6l12 12M18 6L6 18"/>',
+  like:'<path d="M7 11v9H4v-9zM7 11l4-7c1.5 0 2.5 1 2.2 2.6L12.6 10H19a2 2 0 012 2.3l-1.2 6A2 2 0 0117.8 20H7"/>',
+  comment:'<path d="M20 12a8 8 0 01-11.6 7.1L4 20l1-4A8 8 0 1120 12z"/>',share:'<path d="M14 5l7 7-7 7v-4c-5 0-8 1.5-10 5 0-6 3-10 10-11z"/>',
+  camera:'<rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8.5 7l1.5-3h4l1.5 3"/>',
+  mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/>',search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+  lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>',
+  archive:'<rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10h14V9M10 13h4"/>',trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+  mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',reply:'<path d="M10 8L4 13l6 5M4 13h10a6 6 0 016 6"/>',
+  fwd:'<path d="M14 8l6 5-6 5M20 13H10a6 6 0 00-6 6"/>',star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+  phone:'<path d="M6.6 10.8c1.4 2.8 3.8 5.2 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z"/>',
+  bank:'<path d="M4 9l8-5 8 5v2H4zM6 12v6M10 12v6M14 12v6M18 12v6M4 20h16"/>',heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z"/>',
+  check:'<path d="M5 12l5 5 9-10"/>',alert:'<path d="M12 3.5l9.5 17h-19z"/><path d="M12 10v4.5M12 17.5v.3"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.5"/>',flag:'<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
+  send:'<path d="M4 12l16-8-6 16-2-6z"/>',qr:'<rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/>',
+  card:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h3"/>',grid:'<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
+  home:'<path d="M4 11l8-7 8 7v9h-5v-6h-6v6H4z"/>',cart:'<path d="M3 4h2l2.5 11h10L20 7H6.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/>',
+  torch:'<path d="M8 3h8v4l-2 3v11h-4V10L8 7z"/>',chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>'
+};
+const ic=(n,c='')=>`<svg class="ic ${c}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
+
 /* ---------- small ui helpers ---------- */
 const clock=()=>new Date().toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'});
-const sb=(dk)=>`<div class="sb${dk?' dk':''}"><span data-clock>${clock()}</span><span class="sbr"><svg viewBox="0 0 18 12" width="16" height="11"><rect x="0" y="8" width="3" height="4" rx=".6"/><rect x="5" y="5" width="3" height="7" rx=".6"/><rect x="10" y="2.5" width="3" height="9.5" rx=".6"/><rect x="15" y="0" width="3" height="12" rx=".6"/></svg><svg viewBox="0 0 26 12" width="24" height="11"><rect x=".5" y=".5" width="22" height="11" rx="3" fill="none" stroke="currentColor"/><rect x="2" y="2" width="14" height="8" rx="1.6"/><rect x="23.5" y="4" width="2" height="4" rx=".8"/></svg></span></div>`;
+const today=()=>new Date().toLocaleDateString('cs-CZ',{weekday:'long',day:'numeric',month:'long'});
+const sb=(dk)=>`<div class="sb${dk?' dk':''}"><span data-clock>${clock()}</span><span class="sbr"><svg viewBox="0 0 18 12" width="17" height="11"><rect x="0" y="8" width="3" height="4" rx=".6"/><rect x="5" y="5.5" width="3" height="6.5" rx=".6"/><rect x="10" y="3" width="3" height="9" rx=".6"/><rect x="15" y="0" width="3" height="12" rx=".6"/></svg><svg viewBox="0 0 16 12" width="15" height="11"><path d="M8 11.5L5.6 8.9a3.4 3.4 0 014.8 0zM3.6 6.9a6.3 6.3 0 018.8 0l-1.3 1.3a4.5 4.5 0 00-6.2 0zM1.3 4.6a9.6 9.6 0 0113.4 0l-1.3 1.3a7.8 7.8 0 00-10.8 0z"/></svg><svg viewBox="0 0 27 12" width="25" height="11"><rect x=".5" y=".5" width="22" height="11" rx="3" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="15" height="8" rx="1.6"/><rect x="23.6" y="4" width="1.9" height="4" rx=".8" opacity=".45"/></svg></span></div>`;
+const HB=(lt)=>`<div class="homebar${lt?' lt':''}"></div>`;
 const PH='<svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.2 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z"/></svg>';
-const LOCK='<svg class="lock" viewBox="0 0 16 16"><rect x="3" y="7" width="10" height="7" rx="1.5" fill="#1b7f3b"/><path d="M5 7V5a3 3 0 016 0v2" fill="none" stroke="#1b7f3b" stroke-width="1.6"/></svg>';
 const hot=(id,html,tag='span')=>`<${tag} class="hot" tabindex="0" role="button" data-flag="${id}">${html}</${tag}>`;
+const clue=(html,good)=>`<span class="clue${good?' g':''}">${html}</span>`;
 
-const DOCTOR=`<svg class="vid" viewBox="0 0 320 190" role="img" aria-label="Video: muž v bílém plášti"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7a98aa"/><stop offset="1" stop-color="#2f4b5c"/></linearGradient></defs><rect width="320" height="190" fill="url(#dg)"/><g fill="#fff" opacity=".18"><rect x="14" y="22" width="70" height="7"/><rect x="14" y="50" width="70" height="7"/><rect x="236" y="30" width="70" height="7"/><rect x="236" y="62" width="70" height="7"/></g><path d="M52 190c0-44 44-66 108-66s108 22 108 66z" fill="#f4f6f8"/><path d="M138 128l22 38 22-38z" fill="#dbe3e8"/><rect x="146" y="104" width="28" height="30" rx="10" fill="#d4a284"/><ellipse cx="160" cy="80" rx="31" ry="37" fill="#e3b597"/><path d="M128 72c2-30 62-30 64 0-9-11-19-15-32-15s-23 4-32 15z" fill="#b7babf"/><circle cx="148" cy="82" r="2.7" fill="#3a2a22"/><circle cx="172" cy="82" r="2.7" fill="#3a2a22"/><path d="M148 102q12 7 24 0" stroke="#8a4b3a" stroke-width="3" fill="none"/><path d="M112 140c-6 26 8 38 24 34" stroke="#2a2f34" stroke-width="3.5" fill="none"/></svg>`;
-const GIRL=`<svg class="cimg" viewBox="0 0 320 170" role="img" aria-label="Ilustrace: dívka"><rect width="320" height="170" fill="#f6dfe6"/><circle cx="160" cy="80" r="34" fill="#f2c9ad"/><path d="M125 72c4-30 66-30 70 0-8-12-18-16-35-16s-27 4-35 16z" fill="#7b4a2c"/><circle cx="120" cy="96" r="9" fill="#7b4a2c"/><circle cx="200" cy="96" r="9" fill="#7b4a2c"/><circle cx="148" cy="82" r="2.6" fill="#333"/><circle cx="172" cy="82" r="2.6" fill="#333"/><path d="M150 98q10 6 20 0" stroke="#a5533f" stroke-width="2.6" fill="none"/><path d="M90 170c2-34 32-48 70-48s68 14 70 48z" fill="#f28ea6"/></svg>`;
-const BOTTLE=`<svg viewBox="0 0 90 120" width="70" height="92" aria-hidden="true"><rect x="30" y="4" width="30" height="16" rx="3" fill="#1c7d5b"/><rect x="18" y="18" width="54" height="96" rx="10" fill="#e9f6ee" stroke="#1c7d5b" stroke-width="3"/><rect x="24" y="46" width="42" height="34" rx="4" fill="#1c7d5b"/><text x="45" y="68" font-size="11" text-anchor="middle" fill="#fff" font-family="Arial" font-weight="700">GlukoVital</text></svg>`;
+const DOCTOR=`<svg class="vid" viewBox="0 0 320 190" role="img" aria-label="Video: muž v bílém plášti v ordinaci"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8fb0c0"/><stop offset="1" stop-color="#34525f"/></linearGradient></defs><rect width="320" height="190" fill="url(#dg)"/><g fill="#fff" opacity=".16"><rect x="14" y="22" width="70" height="7"/><rect x="14" y="50" width="70" height="7"/><rect x="14" y="78" width="54" height="7"/><rect x="236" y="30" width="70" height="7"/><rect x="236" y="62" width="70" height="7"/></g><rect x="250" y="96" width="44" height="58" rx="4" fill="#fff" opacity=".22"/><path d="M52 190c0-44 44-66 108-66s108 22 108 66z" fill="#f4f6f8"/><path d="M138 128l22 38 22-38z" fill="#9fb3c2"/><path d="M152 132l8 30 8-30z" fill="#284b63"/><rect x="146" y="104" width="28" height="30" rx="10" fill="#d4a284"/><ellipse cx="160" cy="80" rx="31" ry="37" fill="#e3b597"/><path d="M128 72c2-30 62-30 64 0-9-11-19-15-32-15s-23 4-32 15z" fill="#b7babf"/><rect x="140" y="76" width="16" height="11" rx="4" fill="none" stroke="#333" stroke-width="2"/><rect x="164" y="76" width="16" height="11" rx="4" fill="none" stroke="#333" stroke-width="2"/><path d="M156 81h8" stroke="#333" stroke-width="2"/><circle cx="148" cy="82" r="2.4" fill="#3a2a22"/><circle cx="172" cy="82" r="2.4" fill="#3a2a22"/><path d="M149 101q11 5 22 0" stroke="#8a4b3a" stroke-width="3" fill="none"/><path d="M112 140c-6 26 8 38 24 34" stroke="#2a2f34" stroke-width="3.5" fill="none"/><circle cx="137" cy="174" r="5" fill="#2a2f34"/></svg>`;
+const GIRL=`<svg class="cimg" viewBox="0 0 320 170" role="img" aria-label="Fotografie: dívka v nemocniční posteli"><rect width="320" height="170" fill="#f3dde3"/><rect x="0" y="118" width="320" height="52" fill="#fff" opacity=".7"/><rect x="40" y="40" width="240" height="90" rx="12" fill="#fff" opacity=".55"/><circle cx="160" cy="80" r="34" fill="#f2c9ad"/><path d="M125 78c0-34 70-34 70 0-6-15-19-21-35-21s-29 6-35 21z" fill="#f28ea6"/><circle cx="196" cy="70" r="7" fill="#f28ea6"/><path d="M130 66h60" stroke="#fff" stroke-width="3" stroke-dasharray="2 6" opacity=".8"/><circle cx="148" cy="84" r="2.6" fill="#333"/><circle cx="172" cy="84" r="2.6" fill="#333"/><path d="M151 99q9 4 18 0" stroke="#a5533f" stroke-width="2.6" fill="none"/><path d="M90 170c2-34 32-48 70-48s68 14 70 48z" fill="#9cc3e6"/><path d="M122 140h76" stroke="#fff" stroke-width="3" opacity=".6"/><circle cx="246" cy="58" r="14" fill="#f7a8b8"/><path d="M246 72v40" stroke="#bbb" stroke-width="3"/></svg>`;
+const BOTTLE=`<svg viewBox="0 0 90 120" width="72" height="96" aria-hidden="true"><rect x="30" y="4" width="30" height="16" rx="3" fill="#1c7d5b"/><rect x="18" y="18" width="54" height="96" rx="10" fill="#e9f6ee" stroke="#1c7d5b" stroke-width="3"/><rect x="24" y="44" width="42" height="38" rx="4" fill="#1c7d5b"/><text x="45" y="62" font-size="10" text-anchor="middle" fill="#fff" font-family="Arial" font-weight="700">Gluko</text><text x="45" y="74" font-size="10" text-anchor="middle" fill="#fff" font-family="Arial" font-weight="700">Vital</text><text x="45" y="98" font-size="7" text-anchor="middle" fill="#1c7d5b" font-family="Arial">60 kapslí</text></svg>`;
 
 /* ---------- phone screens ---------- */
-const S_incoming=()=>`<div class="call">${sb(1)}<div class="callin"><div class="c-lbl">Příchozí hovor</div><div class="avatar ring"><svg viewBox="0 0 24 24"><path d="M4 9l8-5 8 5v2H4zM6 12v6M10 12v6M14 12v6M18 12v6M4 20h16"/></svg></div><div class="c-name">Vltava banka</div><div class="c-num">+420 800 100 123</div><div class="c-btns"><div><button class="cbtn red" data-choice="1" aria-label="Odmítnout">${PH}</button><div class="c-btnl">Odmítnout</div></div><div><button class="cbtn" data-choice="0" aria-label="Zvednout">${PH}</button><div class="c-btnl">Zvednout</div></div></div></div></div>`;
+const S_incoming=()=>`<div class="scr callbg">${sb(1)}<div class="inc"><div class="lbl">mobil · Příchozí hovor</div><div class="avatar ring">${ic('bank')}</div><div class="c-name">Vltava banka</div><div class="c-num">+420 800 100 123</div>
+<div class="c-sm"><div>${ic('clock')}Připomenout</div><div>${ic('msg')}Zpráva</div></div>
+<div class="c-btns"><div><button class="cbtn red" data-choice="1" aria-label="Odmítnout hovor">${PH}</button><div class="c-btnl">Odmítnout</div></div><div><button class="cbtn" data-choice="0" aria-label="Přijmout hovor">${PH}</button><div class="c-btnl">Přijmout</div></div></div></div>${HB(1)}</div>`;
 const capsHtml=()=>S.log.slice(-4).map(l=>`<p class="${l.who}">${l.who==='me'?'Vy: ':''}${l.text}</p>`).join('');
-const S_active=(banner)=>`<div class="call act">${sb(1)}${banner?`<div class="banner" data-choice="${banner.choice}" role="button" tabindex="0"><b>Zprávy · Vltava banka</b><span>${banner.text}</span></div>`:''}<div class="cn">Vltava banka</div><div class="ct" data-timer>00:00</div><div class="caps"><div class="h">Živé titulky</div>${capsHtml()}</div><div class="cgrid"><div><i></i>ztlumit</div><div><i></i>klávesnice</div><div><i></i>reproduktor</div></div><div class="endrow"><button class="cbtn red" data-hang aria-label="Zavěsit">${PH}</button></div></div>`;
-const S_sms=(msgs,opts={})=>`<div class="thread">${sb()}${opts.call?`<div class="callbar" data-timer-bar>Probíhá hovor · <span data-timer>00:00</span></div>`:''}<div class="th-h"><div class="av">${opts.av||'B'}</div><div><b>${opts.from}</b><small>${opts.sub||'Textová zpráva'}</small></div></div><div class="msgs"><div class="mt">Dnes ${clock()}</div>${msgs.map(m=>`<div class="bub">${m}</div>`).join('')}</div></div>`;
-const S_wa=(name,sub,msgs)=>`<div class="thread wa">${sb()}<div class="th-h"><div class="av">?</div><div><b>${name}</b><small>${sub}</small></div></div><div class="msgs">${msgs.map(m=>`<div class="bub">${m}<span class="mtime">${clock()}</span></div>`).join('')}</div></div>`;
-const S_mail=(subj,name,addr,body)=>`<div class="mail">${sb()}<div class="mail-h"><div class="subj">${subj}</div><div class="fr"><div class="th-h" style="border:0;padding:0"><div class="av">${name[0]}</div></div><div><b>${name}</b><small>${addr}</small></div></div></div><div class="mail-b">${body}</div></div>`;
-const S_bank=(o)=>`<div class="bank">${sb(1).replace('sb dk','sb dk" style="background:#0d6b5c')}${o.remote?`<div class="rc">● Vzdálená správa aktivní – ${o.remote}</div>`:''}<div class="bk-h"><div class="l"><i></i>Vltava banka</div><div class="lbl">Disponibilní zůstatek</div><div class="bal" data-count data-from="${o.from}" data-to="${o.to}">${o.from.toLocaleString('cs-CZ')} Kč</div></div><div class="bk-l"><div class="tx new"><div>${o.label||'Zahraniční převod'}<small>${o.sub||'Právě teď · odchozí platba'}</small></div><div class="neg">−${o.amt.toLocaleString('cs-CZ')} Kč</div></div><div class="tx"><div>Potraviny Hana<small>Včera · platba kartou</small></div><div class="neg">−312 Kč</div></div><div class="tx"><div>Příchozí platba<small>Před 3 dny</small></div><div class="pos">+18 460 Kč</div></div></div></div>`;
-const S_home=(txt)=>`<div class="call" style="background:linear-gradient(#37506b,#1c2a3a)">${sb(1)}<div class="callin"><div class="c-lbl" style="margin-top:6em;font-size:1.2em">${txt}</div></div></div>`;
+const CGRID=`<div class="cgrid"><div><i>${ic('micoff')}</i>ztlumit</div><div><i>${ic('keypad')}</i>klávesnice</div><div><i>${ic('speaker')}</i>reproduktor</div><div><i>${ic('plus')}</i>přidat</div><div><i>${ic('video')}</i>video</div><div><i>${ic('person')}</i>kontakty</div></div>`;
+const S_active=(banner)=>`<div class="scr callbg act">${sb(1)}${banner?`<div class="banner" data-choice="${banner.choice}" role="button" tabindex="0"><span class="ai">${ic('msg')}</span><span class="bt"><b>Vltava banka <small>nyní</small></b><span>${banner.text}</span></span></div>`:''}<div class="cn">Vltava banka</div><div class="ct" data-timer>00:00</div><div class="caps"><div class="h">Přepis hovoru</div>${capsHtml()}</div>${CGRID}<div class="endrow"><button class="cbtn red" data-hang aria-label="Zavěsit">${PH}</button></div></div>`;
+const S_sms=(msgs,o={})=>`<div class="scr sms">${sb()}<div class="im-h">${ic('back')}<div class="im-who"><div class="im-av">${o.av||ic('person')}</div><div class="im-name">${o.from}${ic('chev')}</div></div>${ic('video')}</div>${o.call?`<div class="callbar">Probíhá hovor · Vltava banka · <span data-timer>00:00</span></div>`:''}<div class="msgs"><div class="mt"><b>Textová zpráva</b><br>Dnes ${clock()}</div>${msgs.map(m=>`<div class="bub">${m}</div>`).join('')}${o.unknown?`<div class="im-unk">Odesílatel není ve vašem seznamu kontaktů.<br><u>Nahlásit nevyžádanou zprávu</u></div>`:''}</div><div class="im-in"><span class="pl">${ic('plus')}</span><span class="f">Textová zpráva · SMS ${ic('mic')}</span></div>${HB()}</div>`;
+const S_wa=(name,msgs)=>`<div class="scr wa">${sb()}<div class="wa-h">${ic('back')}<span class="av">${ic('person')}</span><span class="nm"><b>${name}</b><small>online</small></span>${ic('video')}${ic('phone')}</div><div class="msgs"><div class="wa-sys">${ic('lock')} Zprávy a hovory jsou koncově šifrované. Nikdo mimo tento chat si je nemůže přečíst.</div><div class="wa-unk">Toto číslo není ve vašich kontaktech.<div><span class="r">Blokovat</span><span class="g">Přidat do kontaktů</span></div></div>${msgs.map(m=>`<div class="bub">${m}<span class="mtime">${clock()}</span></div>`).join('')}</div><div class="wa-in">${ic('plus')}<span>Zpráva</span>${ic('camera')}${ic('mic')}</div>${HB()}</div>`;
+const S_mail=(o)=>`<div class="scr mail">${sb()}<div class="ml-t">${ic('back')}<span class="sp"></span>${ic('archive')}${ic('trash')}${ic('mail')}${ic('dots')}</div><div class="ml-h"><div class="subj">${o.subj}<small>Doručené</small></div><div class="ml-fr"><div class="ml-av" style="background:${o.col||'#7b61ff'}">${o.name[0]}</div><div class="w"><b>${o.name}<small>${o.time||clock()}</small></b><span class="ad">${o.addr}</span><span class="to">komu: mně</span></div>${ic('reply')}</div></div><div class="ml-b">${o.body}</div><div class="ml-f"><span>${ic('reply')}Odpovědět</span><span>${ic('fwd')}Přeposlat</span></div>${HB()}</div>`;
+const S_bank=(o)=>`<div class="scr bank"><div class="bk-h">${sb(1)}${o.remote?`<div class="rc">${o.remote}</div>`:''}<div class="bk-top"><span class="l"><i>${ic('bank')}</i>Vltava banka</span><small>Dobrý den, Marie</small></div><div class="bk-card"><small>Běžný účet · •••• 4471</small><div class="bal" data-count data-from="${o.from}" data-to="${o.to}">${o.from.toLocaleString('cs-CZ')} Kč</div><small>Disponibilní zůstatek</small></div></div><div class="bk-q"><div><i>${ic('send')}</i>Platba</div><div><i>${ic('qr')}</i>QR platba</div><div><i>${ic('card')}</i>Karty</div><div><i>${ic('grid')}</i>Více</div></div><div class="bk-l"><div class="lh">Poslední pohyby</div><div class="tx new"><span class="ti">${ic('send')}</span><div class="td">${o.label||'Zahraniční převod'}<small>${o.sub||'Právě teď · odchozí platba'}</small></div><div class="neg">−${o.amt.toLocaleString('cs-CZ')} Kč</div></div><div class="tx"><span class="ti">${ic('cart')}</span><div class="td">Potraviny Hana<small>Včera · platba kartou</small></div><div class="neg">−312 Kč</div></div><div class="tx"><span class="ti">${ic('bank')}</span><div class="td">Důchod ČSSZ<small>Před 3 dny · příchozí platba</small></div><div class="pos">+18 460 Kč</div></div><div class="tx"><span class="ti">${ic('heart')}</span><div class="td">Lékárna U Anděla<small>Před 4 dny · platba kartou</small></div><div class="neg">−186 Kč</div></div></div><div class="tabbar"><div class="on">${ic('home')}Přehled</div><div>${ic('send')}Platby</div><div>${ic('card')}Karty</div><div>${ic('person')}Profil</div></div>${HB()}</div>`;
+const S_home=(title,txt)=>`<div class="scr lockbg">${sb(1)}<div class="ls"><div class="ls-d">${today()}</div><div class="ls-t" data-clock>${clock()}</div><div class="ls-n"><span class="ai">${ic(title==='Hotovo'?'check':'info')}</span><span><b>${title}</b><span>${txt||''}</span></span></div><div class="ls-f"><i>${ic('torch')}</i><i>${ic('camera')}</i></div></div>${HB(1)}</div>`;
 
-const S_fbFeed=()=>`<div class="fb">${sb()}<div class="fb-h">Novinky</div><div class="pbody"><div class="post">
-<div class="p-h"><div class="p-av">ZV</div><div>${hot('page','<b>Zdravá Vlast</b>')}<small>${hot('spons','Sponzorováno')} · ${hot('age','Stránka vytvořena před 6 dny')}</small></div></div>
-<div class="p-t">${hot('claim','MUDr. Jan Vondra překvapil: český objev, který vyléčí cukrovku a bolavé klouby do 14 dnů.')} Lékaři mlčí, protože by přišli o zisk. …<span style="color:#65676b"> Zobrazit více</span></div>
-${hot('doctor',`<div class="vwrap">${DOCTOR}<div class="play"><i></i></div><div class="sub-bar">„…a tak jsem objevil řešení, o kterém vám nikdo neřekne.“</div></div>`,'div')}
+const RX=`<span class="rx"><i class="l">${ic('like')}</i><i class="h">${ic('heart')}</i><i class="s">${ic('star')}</i>`;
+const S_fbFeed=()=>`<div class="scr fb">${sb()}<div class="fb-h"><b>Novinky</b><span><i>${ic('plus')}</i><i>${ic('search')}</i><i>${ic('msg')}</i></span></div><div class="pbody"><div class="post">
+<div class="p-h"><div class="p-av">ZV</div><div class="w">${hot('page','<b>Zdravá Vlast</b>')} · <span class="fl">Sledovat</span><small>${hot('spons','Sponzorováno')} · ${ic('globe')} · ${hot('age','Stránka vytvořena před 6 dny')}</small></div>${ic('dots')}${ic('x')}</div>
+<div class="p-t">${hot('claim','MUDr. Jan Vondra překvapil: český objev, který vyléčí cukrovku a bolavé klouby do 14 dnů.')} Lékaři mlčí, protože by přišli o zisk… <span class="more">Zobrazit více</span></div>
+${hot('doctor',`<span class="vwrap">${DOCTOR}<span class="play"><i></i></span><span class="dur">0:47</span><span class="sub-bar">„…a tak jsem objevil řešení, o kterém vám nikdo neřekne.“</span></span>`,'div')}
 <div class="lk"><div>${hot('link','<small>ZDRAVA-VLAST-AKCE.SHOP</small>','div')}<b>Cukrovka končí. Objednejte se slevou 76 %</b>${hot('urgent','<small style="color:#d93025;font-weight:700">Zbývá posledních 7 kusů!</small>','div')}</div><div class="go">Objednat</div></div>
-<div class="react"><span>👍❤️ 1,2 tis.</span><span>348 komentářů · 92 sdílení</span></div>
-<div class="acts"><span>Líbí se mi</span><span>Komentář</span><span>Sdílet</span></div>
-${hot('comments',`<div><div class="cmt"><div class="p-av"></div><div><b>Jarmila Nováková</b>Pomohlo mi to už po týdnu, děkuji pane doktore! 🙏</div></div><div class="cmt"><div class="p-av"></div><div><b>Jarmila Novakova</b>Pomohlo mi to už po tydnu, dekuji pane doktore!!! 🙏🙏</div></div></div>`,'div')}
-</div></div></div>`;
+<div class="react">${RX}<span>1,2 tis.</span></span><span>348 komentářů · 92 sdílení</span></div>
+<div class="acts"><span>${ic('like')}To se mi líbí</span><span>${ic('comment')}Komentář</span><span>${ic('share')}Sdílet</span></div>
+${hot('comments',`<div class="cmt"><div class="p-av">JN</div><div><b>Jarmila Nováková</b>Pomohlo mi to už po týdnu, děkuji pane doktore!<small>2 h · To se mi líbí · Odpovědět</small></div></div><div class="cmt"><div class="p-av">JN</div><div><b>Jarmila Novakova</b>Pomohlo mi to uz po tydnu, dekuji pane doktore!!!<small>2 h · To se mi líbí · Odpovědět</small></div></div>`,'div')}
+</div></div>${HB()}</div>`;
 
-const S_landing=()=>`<div class="br">${sb()}<div class="br-bar"><div class="br-url">${hot('lock',LOCK)} zdrava-vlast-akce.shop/objednat</div></div><div class="pbody lp">${hot('timer','<div class="cd">Nabídka končí za <span data-cd>09:59</span></div>','div')}<h4>Doktor: „Cukrovka končí. Bez léků, bez diet.“</h4><div class="bot">${BOTTLE}<div><div class="price">349 Kč <s>1 490 Kč</s></div><div style="font-size:.85em;color:#556">Dobírka, doručení do 3 dnů</div></div></div>${hot('badge','<span class="badge">✔ Schváleno SÚKL</span>')}<div class="tst">„Po týdnu jsem zapomněla, že mám cukrovku.“ – Marie, Kladno</div><div class="form"><div>Jméno: Marie Nováková</div><div>Adresa: Květná 12, Praha</div><div>Karta: •••• •••• •••• 4471</div></div>${hot('print','<div class="fine">Odesláním objednávky souhlasíte s pravidelným odběrem přípravku GlukoVital za 2 490 Kč měsíčně. Zrušení je možné pouze písemně na adresu provozovatele nejpozději 30 dní předem.</div>','div')}</div></div>`;
+const S_landing=()=>`<div class="scr br">${sb()}<div class="pbody lp">${hot('timer','<div class="cd">Akční cena končí za <b data-cd>09:59</b></div>','div')}<div class="lp-shop">GlukoVital® <small>oficiální e-shop</small></div><h4>Doktor: „Cukrovka končí. Bez léků, bez diet.“</h4>${hot('media','<div class="asseen"><small>Známe z:</small><span>ZPRÁVY 24</span><span>Zdravý Život</span><span>TV Domov</span></div>','div')}<div class="bot">${BOTTLE}<div><div class="stars">★★★★★ <small>4,9 (12 847 hodnocení)</small></div><div class="price">349 Kč <s>1 490 Kč</s></div><div style="font-size:.8em;color:#556">Doprava zdarma · platba kartou</div></div></div>${hot('badge',`<span class="badge">${ic('check')}Schváleno SÚKL</span>`)}<div class="tst">„Po týdnu jsem zapomněla, že mám cukrovku. Inzulin už nepotřebuji.“<small>Marie, 67 let, Kladno</small></div><div class="form"><div><label>Jméno a příjmení</label><div>Marie Nováková</div></div><div><label>Adresa</label><div>Květná 12, Praha</div></div><div><label>Číslo karty</label><div>•••• •••• •••• 4471</div></div></div><div class="buy">Objednat se slevou 76 %</div>${hot('print','<div class="fine">Odesláním objednávky souhlasíte s obchodními podmínkami a s pravidelným odběrem přípravku GlukoVital za 2 490 Kč měsíčně. Zrušení je možné pouze písemně na adresu provozovatele nejpozději 30 dní předem. Přípravek není léčivo.</div>','div')}</div>${hot('popup',`<div class="fomo"><i>${ic('cart')}</i><span><b>Jana z Olomouce</b> si právě objednala 3 balení<small>před 2 minutami</small></span></div>`,'div')}<div class="br-bar" style="border-top:1px solid #e1e1e6;border-bottom:0;padding:.5em .7em 1.7em"><div class="br-url">${hot('lock',ic('lock'))}<span>zdrava-vlast-akce.shop</span></div></div>${HB()}</div>`;
 
-const S_charity=()=>`<div class="chs">${sb()}<div class="pbody" style="background:#e9ebee">
-<span class="tagAB">Sbírka A</span>
-<div class="post" style="margin-top:.4em"><div class="p-h"><div class="p-av" style="background:#c0392b">PK</div><div><b>Pomozte Karolínce</b>${hot('newA','<small>Stránka vytvořena před 3 dny · Sponzorováno</small>')}</div></div>
+const S_charity=()=>`<div class="scr chs">${sb()}<div class="fb-h"><b>Novinky</b><span><i>${ic('search')}</i><i>${ic('msg')}</i></span></div><div class="pbody">
+<span class="tagAB">SBÍRKA A</span>
+<div class="post" style="margin-top:.4em"><div class="p-h"><div class="p-av" style="background:#c0392b">PK</div><div class="w"><b>Pomozte Karolínce</b>${hot('newA',`Sponzorováno · ${ic('globe')} · Stránka vytvořena před 3 dny`,'small')}</div>${ic('dots')}</div>
+<div class="p-t">${hot('nameA','Karolínka (7) bojuje s rakovinou.')} Maminka už nemá sílu a léčba v zahraničí stojí miliony. <b>Každá koruna se počítá!</b> ${hot('pressA','Sbírka končí o půlnoci – sdílejte, ať se to dostane k co nejvíce lidem!')}</div>
 ${GIRL}
-<div class="p-t">${hot('nameA','Karolínka (7) bojuje s rakovinou.')} Maminka už nemá sílu. <b>Každá koruna se počítá!</b> ${hot('pressA','Sbírka končí o půlnoci, sdílejte prosím, ať se to dostane k co nejvíce lidem.')}</div>
-${hot('acctA','<div class="acct"><b>Číslo účtu</b>1748092361/2010<br><small>Neuvedeno, kdo je majitelem</small></div>','div')}
-<div class="react"><span>👍😢 11 tis.</span><span>6,4 tis. sdílení</span></div></div>
-<span class="tagAB">Sbírka B</span>
-<div class="post" style="margin-top:.4em"><div class="p-h"><div class="p-av" style="background:#0a58a6">NF</div><div><b>Nadační fond Světlo dětem</b><small>Nezisková organizace · založena 2012</small></div></div>
-<div class="p-t">Sbírka na rehabilitace <b>Tomáše N. (9)</b>, který se léčí po operaci. Rodina se sbírkou souhlasí.</div>
+<div class="raise"><b>Vybráno 187 450 Kč</b> z 2 500 000 Kč<div class="bar"><i style="width:8%"></i></div></div>
+${hot('acctA','<div class="acct"><b>Pošlete dar na účet</b>1748092361/2010<br><small>Majitel účtu neuveden</small></div>','div')}
+<div class="react">${RX}<span>11 tis.</span></span><span>6,4 tis. sdílení</span></div></div>
+<span class="tagAB">SBÍRKA B</span>
+<div class="post" style="margin-top:.4em"><div class="p-h"><div class="p-av" style="background:#0a58a6">SD</div><div class="w"><b>Nadační fond Světlo dětem</b><small>Nezisková organizace · na síti od 2012</small></div>${ic('dots')}</div>
+<div class="p-t">Sbírka na rehabilitace <b>Tomáše N. (9) z Brna</b>, který se zotavuje po operaci páteře ve FN Brno. Rodina se sbírkou souhlasí.</div>
 <ul class="facts">
 <li>${hot('orgB','Pořadatel: Nadační fond Světlo dětem, IČO 012 34 567')}</li>
-<li>${hot('whyB','Peníze jdou přímo na rehabilitační péči a fond zveřejňuje výdaje')}</li>
+<li>${hot('whyB','Peníze jdou přímo na rehabilitační pobyt, fond zveřejňuje faktury')}</li>
 <li>${hot('contactB','Kontakt: 543 000 111 · pomoc@svetlodetem.example')}</li></ul>
-${hot('acctB','<div class="acct"><b>Transparentní účet</b>2401234567/2010<br><small>Pohyby na účtu jsou veřejně vidět</small></div>','div')}
-<div class="react"><span>👍 214</span><span>31 sdílení</span></div></div></div></div>`;
+${hot('acctB','<div class="acct"><b>Transparentní účet fondu</b>2401234567/2010<br><small>Všechny pohyby na účtu jsou veřejně vidět</small></div>','div')}
+<div class="react">${RX}<span>214</span></span><span>31 sdílení</span></div></div></div>${HB()}</div>`;
 
 /* ---------- scenarios ---------- */
 const PRESSURE=['Autorita','Strach','Spěch','Utajení','Lákavá nabídka','Soucit'];
+const LEVERS={
+  'Autorita':'Vydávají se za banku, policii, lékaře nebo úřad. Autoritám lidé přirozeně věří a neodporují.',
+  'Strach':'Hrozí ztrátou peněz, zdraví nebo problémy se zákonem. Ve strachu jednáme, místo abychom přemýšleli.',
+  'Spěch':'„Hned“, „do půlnoci“, „zbývá 7 kusů“. Čas je vymyšlený – má vám zabránit se zastavit a ověřit si to.',
+  'Utajení':'„Nikomu to neříkejte.“ Podvodník nechce, abyste se poradili s někým, kdo by ho prokoukl.',
+  'Lákavá nabídka':'Zázračný lék, obří sleva, výhra, snadný výdělek. Když je něco příliš dobré, bývá to past.',
+  'Soucit':'Nemocné dítě, rodina v nouzi, „mami, pomoz“. Soucit je krásná vlastnost – a podvodníci ho zneužívají.'
+};
+const THREE=['Kdo mi to píše nebo volá – a odkud to doopravdy vím?','Proč to tak spěchá a proč to mám tajit?','Ověřím si to jinou cestou, než mi nabídli?'];
 
 const CALL={
   title:'Telefonát „z banky“',
+  intro:'Úterý dopoledne, jste doma. Zazvoní telefon a na displeji svítí „Vltava banka“ – máte ji uloženou v kontaktech. Rozhodujte se, jako by to bylo doopravdy.',
   flags:{
-    spoof:{t:'Číslo sedí s číslem banky',d:'Podvodníci umí na displeji zobrazit libovolné číslo, i skutečnou linku banky. Číslo na displeji tedy nic nedokazuje.'},
-    unsol:{t:'Volají vám sami od sebe',d:'Banka vás kontaktovat může. Nikdy ale během hovoru nechce kód z SMS, PIN, instalaci aplikace ani převod peněz.'},
-    knows:{t:'Znají vaše údaje',d:'Konec čísla účtu, jméno nebo adresu lze získat z úniků dat. O tom, kdo volá, nic nevypovídají.'},
-    secret:{t:'„Nikomu to neříkejte“',d:'Utajení je pojistka podvodníka. Skutečná banka nechce, abyste se s někým poradili.'},
-    code:{t:'Kód potvrzuje platbu, nezrušuje ji',d:'V SMS stojí, že kód „potvrzuje odchozí platbu“. Nadiktováním kódu byste platbu sami podepsali.'},
-    remote:{t:'Chtějí aplikaci pro vzdálený přístup',d:'Takové aplikace dají volajícímu do rukou váš telefon: vidí obrazovku i SMS a může zadávat příkazy za vás.'}
+    spoof:{t:'Na displeji je jméno i číslo banky',d:'Podvodníci umí zobrazit libovolné číslo, i skutečnou linku banky (tzv. spoofing). Máte-li ho uložené v kontaktech, telefon ukáže i jméno. Nic to nedokazuje.',v:'Hovor nepřijímejte, nebo zavěste a vytočte číslo z karty sami.'},
+    unsol:{t:'Volají vám sami od sebe',d:'Banka vás kontaktovat může. Nikdy ale během hovoru nechce kód z SMS, PIN, heslo, instalaci aplikace ani převod peněz na „bezpečný účet“.',v:'Řekněte „zavolám vám zpátky“ a zavěste.'},
+    knows:{t:'Znají vaše údaje',d:'Konec čísla účtu, jméno, adresu nebo datum narození lze koupit z uniklých databází. O tom, kdo volá, nic nevypovídají.'},
+    secret:{t:'„Nikomu o hovoru neříkejte“',d:'Utajení je pojistka podvodníka. Skutečná banka vám nikdy nezakáže poradit se s rodinou nebo zajít na pobočku.'},
+    code:{t:'Kód potvrzuje platbu, nezrušuje ji',d:'Přečtěte si SMS celou: stojí v ní, že kód „potvrzuje odchozí platbu“. Nadiktováním kódu byste platbu sami podepsali.',v:'Kód z SMS nikdy nikomu neříkejte. Ani „bance“.'},
+    remote:{t:'Chtějí, abyste si nainstalovali aplikaci',d:'Aplikace pro vzdálenou správu dá volajícímu do rukou celý váš telefon: vidí obrazovku i SMS a může zadávat platby za vás.',v:'Nic neinstalujte na pokyn někoho, kdo vám volá.'}
   },
   start:'ring',
   nodes:{
     ring:{screen:()=>S_incoming(),sfx:'ring',notice:['spoof'],
-      choices:[{t:'Zvednout',to:'a1'},{t:'Nezvednu. Zavolám do banky sám/sama.',to:'ignore'}]},
-    ignore:{screen:()=>S_home('Hovor jste nezvedli'),end:{kind:'ok',title:'Skvělé. Nezvedli jste.',text:'Kdyby bylo něco v nepořádku, banka má jiné cesty. Vy si číslo z karty vytočíte sami a nikam nespěcháte.',steps:['Vytočte číslo z platební karty nebo z aplikace ručně.','Zeptejte se, zda k vašemu účtu něco evidují.']},
-      extra:{t:'Podívat se, co by následovalo, kdybych zvedl(a)',to:'a1'}},
+      choices:[{t:'Přijmout hovor',to:'a1'},{t:'Nepřijmu. Do banky zavolám sám/sama.',to:'ignore'}]},
+    ignore:{screen:()=>S_home('Zmeškaný hovor','Vltava banka'),end:{kind:'ok',title:'Skvělé. Hovor jste nepřijali.',text:'Kdyby bylo něco v nepořádku, banka má jiné cesty – zprávu v aplikaci, dopis, pobočku. Vy si číslo z karty vytočíte sami a nikam nespěcháte.',steps:['Vytočte ručně číslo z platební karty nebo z aplikace banky.','Zeptejte se, zda u vašeho účtu něco evidují.','Pokud ne, nahlaste, že vám někdo volal jejich jménem.']},
+      extra:{t:'Ukázat, co by následovalo, kdybych hovor přijal(a)',to:'a1'}},
     a1:{screen:()=>S_active(),start:true,
       say:'Dobrý den, tady Martin Kovář z bezpečnostního oddělení Vltava banky. Na vašem účtu právě probíhá podezřelý převod 48 500 korun do zahraničí. Provedl jste ho vy?',
       tags:['Autorita','Strach'],notice:['unsol'],
@@ -460,80 +808,84 @@ const CALL={
         {t:'Co mám tedy dělat?',say:'Co mám tedy dělat?',to:'a_app'},
         {t:'Zavěsím a zavolám do banky sám/sama.',hang:true,to:'a_stay'}
       ]},
-    a_who:{screen:()=>S_active(),say:'Rozumím vaší opatrnosti, ale nemáme čas. Váš účet končí čtyřmi číslicemi 4471 a vedeme ho už čtrnáct let. Převod odchází za pár minut.',
+    a_who:{screen:()=>S_active(),say:'Rozumím vaší opatrnosti, to je správně. Váš účet končí čísly 4471 a jste u nás klientem čtrnáct let. Ale převod odchází za pár minut, musíme jednat hned.',
       tags:['Autorita','Spěch'],notice:['knows'],
-      choices:[{t:'Ne! Nic takového jsem neprováděl(a).',say:'Ne! Nic takového jsem neprováděl(a).',to:'a2'},{t:'Zavěsím a zavolám do banky sám/sama.',hang:true,to:'a_stay'}]},
-    a_stay:{screen:()=>S_active(),say:'Počkejte! Když zavěsíte, převod proběhne a peníze už nikdo nevrátí. Zůstaňte na lince, jsem tu jen pro vás.',
+      choices:[{t:'Ne, ten převod jsem nedělal(a).',say:'Ne, ten převod jsem nedělal(a).',to:'a2'},{t:'Zavěsím a zavolám do banky sám/sama.',hang:true,to:'a_stay'}]},
+    a_stay:{screen:()=>S_active(),say:'Počkejte! Když teď zavěsíte, převod proběhne a peníze už nikdo nevrátí. Na lince je fronta, znovu se nedovoláte. Zůstaňte se mnou, jsem tu jen pro vás.',
       tags:['Strach','Spěch'],
       choices:[{t:'I tak zavěsím a zavolám do banky.',hang:true,to:'good'},{t:'Dobře, zůstanu na lince.',say:'Dobře, zůstanu.',to:'a2'}]},
-    a_app:{screen:()=>S_active({choice:0,text:'Pro zabezpečení účtu nainstalujte aplikaci: vltava-ochrana.app/stahnout'}),sfx:'ding',
-      say:'Pošlu vám odkaz na bezpečnostní aplikaci banky. Nainstalujte ji, já pak vše zkontroluji na dálku a účet ochráním.',
+    a_app:{screen:()=>S_active({choice:0,text:'Pro zabezpečení účtu nainstalujte aplikaci Vltava Ochrana: vltava-ochrana.app/stahnout'}),sfx:'ding',
+      say:'Pošlu vám odkaz na bezpečnostní aplikaci banky. Nainstalujte ji a potvrďte všechna oprávnění. Já pak účet zkontroluji na dálku a peníze ochráním.',
       tags:['Autorita','Spěch'],notice:['remote'],
       choices:[{t:'Otevřít odkaz a aplikaci nainstalovat',to:'bad_remote'},{t:'Zavěsit a zavolat do banky',hang:true,to:'good'}]},
     a2:{screen:()=>S_active({choice:1,text:'Kód 482913 potvrzuje odchozí platbu 48 500 Kč. Nikomu jej nesdělujte.'}),sfx:'ding',
-      say:'Dobře, že jste to hned řekl(a). Převod ještě zastavíme. Právě vám posílám SMS s kódem. Přečtěte mi ho, abych převod zrušil. A nikomu o hovoru neříkejte, mohl by tam být zaměstnanec banky.',
+      say:'Dobře, že jste to hned řekl. Převod ještě stihneme zastavit. Právě vám posílám SMS s kódem, přečtěte mi ho a já platbu zruším. A o hovoru zatím nikomu neříkejte – vyšetřujeme i zaměstnance pobočky.',
       tags:['Spěch','Utajení'],notice:['secret'],
-      choices:[{t:'Nadiktovat kód z SMS',say:'Kód je 4 8 2 9 1 3.',to:'bad_code'},{t:'Nejdřív si SMS otevřu a přečtu',to:'a3'},{t:'Zavěsit a zavolat do banky',hang:true,to:'good'}]},
-    a3:{screen:()=>S_sms(['Vltava banka: Autorizační kód <b>482913</b> potvrzuje odchozí platbu 48 500,00 CZK na účet CZ65 0800 0000 0012 3456 7890. Kód nikomu nesdělujte.'],{from:'Vltava banka',sub:'SMS',call:true}),
-      say:'Neztrácejte čas čtením, to je jen formalita systému! Čas běží, nadiktujte mi to.',
+      choices:[{t:'Nadiktovat kód z SMS',say:'Kód je 4 8 2 9 1 3.',to:'bad_code'},{t:'Nejdřív si SMS otevřu a přečtu celou',to:'a3'},{t:'Zavěsit a zavolat do banky',hang:true,to:'good'}]},
+    a3:{screen:()=>S_sms(['Vltava banka: Autorizační kód <b>482913</b> potvrzuje odchozí platbu 48 500,00 CZK na účet CZ65 0800 0000 0012 3456 7890. Kód nikomu nesdělujte, ani pracovníkům banky.'],{from:'Vltava banka',av:'V',call:true}),
+      say:'Neztrácejte čas čtením, to je jen automatická formalita systému! Čas běží, nadiktujte mi to číslo.',
       tags:['Spěch'],notice:['code'],
       choices:[{t:'Přesto kód nadiktovat',say:'Kód je 4 8 2 9 1 3.',to:'bad_code'},{t:'Zavěsit a zavolat do banky',hang:true,to:'good'}]},
-    good:{screen:()=>S_home('Hovor ukončen'),
-      end:{kind:'ok',title:'Správně. Zavěsili jste.',text:'Banka po vás nikdy nebude chtít kód z SMS, instalaci aplikace ani převod na „bezpečný účet“. Číslo do banky si vytočte sami, z karty nebo z aplikace.',steps:['Zavolejte na číslo z platební karty a pokus o podvod nahlaste.','Kód z SMS nikdy nikomu neříkejte, ani „zaměstnanci banky“.']}},
+    good:{screen:()=>S_home('Hovor ukončen','Vltava banka · 2 min'),
+      end:{kind:'ok',title:'Správně. Zavěsili jste.',text:'Banka po vás nikdy nebude chtít kód z SMS, PIN, instalaci aplikace ani převod na „bezpečný účet“. Když si nejste jistí, zavěste a číslo do banky si vytočte sami – z karty nebo z aplikace.',steps:['Zavolejte na číslo z platební karty a pokus o podvod nahlaste.','Kód z SMS nikdy nikomu neříkejte, ani „zaměstnanci banky“.','Pokud podvodník znal vaše údaje, zeptejte se banky, co dál.']}},
     bad_code:{screen:()=>S_bank({from:84213,to:35713,amt:48500}),sfx:'ding',
-      end:{kind:'bad',title:'Peníze jsou pryč.',text:'Nadiktovaný kód platbu schválil. Nestyďte se: takhle to dopadá i technikům a bankéřům. Volající mluvil profesionálně a využil několik pák najednou.',stepsTitle:'Co udělat hned',steps:['Okamžitě volejte do banky na číslo z karty a požádejte o zablokování účtu a zastavení platby. Čím dřív, tím lépe.','Zavolejte policii (158) nebo podejte oznámení.','Uschovejte SMS, číslo volajícího a čas hovoru.','Řekněte to rodině. Nikdo se za to nemusí stydět.']}},
-    bad_remote:{screen:()=>S_bank({from:84213,to:22213,amt:62000,remote:'Martin (podpora) vidí vaši obrazovku'}),sfx:'ding',
-      end:{kind:'bad',title:'Volající ovládl váš telefon.',text:'Nainstalovaná „bezpečnostní aplikace“ dala podvodníkovi přístup k obrazovce i SMS. Sám zadal platbu a vy jste jen dívali.',stepsTitle:'Co udělat hned',steps:['Vypněte mobilní data i Wi-Fi a aplikaci odinstalujte.','Z jiného telefonu volejte do banky a nechte zablokovat účet.','Zavolejte policii (158) nebo podejte oznámení.','Nechte telefon zkontrolovat a změňte hesla.']}}
+      end:{kind:'bad',title:'Peníze jsou pryč.',text:'Nadiktovaný kód platbu schválil – z pohledu banky jste ji podepsali vy. Nestyďte se: takhle to dopadá i technikům a bankéřům. Volající mluvil profesionálně a použil několik pák najednou.',stepsTitle:'Co udělat hned',steps:['Okamžitě volejte do banky na číslo z karty. Požádejte o zablokování účtu a zastavení platby. Čím dřív, tím lépe.','Zavolejte policii (158) nebo podejte oznámení.','Uschovejte SMS, číslo volajícího a čas hovoru.','Řekněte to rodině. Nikdo se za to nemusí stydět.']}},
+    bad_remote:{screen:()=>S_bank({from:84213,to:22213,amt:62000,remote:'Sdílení obrazovky aktivní · „Martin (podpora)“'}),sfx:'ding',
+      end:{kind:'bad',title:'Volající ovládl váš telefon.',text:'Nainstalovaná „bezpečnostní aplikace“ byla ve skutečnosti program pro vzdálenou správu. Podvodník viděl vaši obrazovku i SMS, sám zadal platbu a sám si ji potvrdil.',stepsTitle:'Co udělat hned',steps:['Vypněte mobilní data i Wi-Fi a aplikaci odinstalujte.','Z jiného telefonu volejte do banky a nechte zablokovat účet.','Zavolejte policii (158) nebo podejte oznámení.','Nechte telefon zkontrolovat a změňte si hesla.']}}
   }
 };
 
 const FB={
   title:'Reklama na zázračný lék',
+  intro:'Večer si prohlížíte sociální síť. Mezi příspěvky přátel se objeví video, ve kterém známý lékař mluví o novém přípravku na cukrovku. Klepejte na všechno, co vám nesedí.',
   flags:{
     page:{t:'Neznámá stránka s vlastenecky znějícím názvem',d:'„Zdravá Vlast“ nic neříká o tom, kdo za ní stojí. Skutečný zdravotnický subjekt má jméno, adresu i IČO.'},
-    spons:{t:'Je to placená reklama',d:'Reklamu si může zaplatit kdokoli. Sponzorovaný příspěvek nic nezaručuje.'},
-    age:{t:'Stránka vznikla před 6 dny',d:'Podvodné stránky se zakládají narychlo a po zablokování mizí. Vždy se podívejte, kdy stránka vznikla.'},
-    claim:{t:'Slib zázraku',d:'Cukrovku a klouby do 14 dnů nevyléčí žádný přípravek. „Lékaři mlčí“ je klasický trik. Nevěřte, že se celý obor spikl proti pacientům.'},
-    doctor:{t:'Video může být uměle vytvořené',d:'Podvodníci dnes zfalšují tvář i hlas známého lékaře (deepfake). Všimněte si nepřirozených pohybů rtů, monotónního hlasu a toho, že nabízí zboží na Facebooku.'},
-    link:{t:'Adresa obchodu je podezřelá',d:'Koncovka .shop, dlouhý název s akcí, žádný známý prodejce. Čerstvě založený web mizí stejně rychle, jako se objevil.'},
+    spons:{t:'Je to placená reklama',d:'Reklamu si může zaplatit kdokoli, sociální síť obsah předem nekontroluje. „Sponzorováno“ nic nezaručuje.'},
+    age:{t:'Stránka vznikla před 6 dny',d:'Podvodné stránky se zakládají narychlo a po zablokování mizí. U stránky se podívejte do „Informace o stránce“, kdy vznikla a odkud ji spravují.'},
+    claim:{t:'Slib zázraku',d:'Cukrovku a klouby do 14 dnů nevyléčí žádný přípravek. „Lékaři mlčí“ je klasický trik: nevěřte, že se celý obor spikl proti pacientům.',v:'O léčbě se radí s lékařem nebo lékárníkem.'},
+    doctor:{t:'Video může být uměle vytvořené (deepfake)',d:'Podvodníci dnes zfalšují tvář i hlas známého lékaře nebo moderátora. Všimněte si nepřirozených pohybů rtů, monotónního hlasu a hlavně toho, že seriózní lékař neprodává zázraky přes reklamu.',v:'Ověřte si na webu lékaře nebo jeho pracoviště, zda se k produktu hlásí.'},
+    link:{t:'Adresa obchodu je podezřelá',d:'Koncovka .shop, dlouhý název s „akcí“, žádný známý prodejce. Čerstvě založený web mizí stejně rychle, jako se objevil.'},
     urgent:{t:'Spěch: „zbývá 7 kusů“',d:'Zbývající kusy jsou vymyšlené. Účelem je, abyste se nezastavili a nepřemýšleli.'},
-    comments:{t:'Komentáře jsou falešné',d:'Skoro stejný text pod dvěma jmény, žádné fotky, samé nadšení. Komentáře i „sdílení“ se dají koupit.'}
+    comments:{t:'Komentáře jsou falešné',d:'Skoro stejný text pod dvěma jmény, bez fotek, samé nadšení. Komentáře, lajky i sdílení se dají koupit po tisících.'}
   },
   hotspots:['page','spons','age','claim','doctor','link','urgent','comments'],
   start:'f1',
   nodes:{
     f1:{screen:()=>S_fbFeed(),tags:['Autorita','Lákavá nabídka','Spěch'],hot:true,
-      q:'Klepněte na věci, které vás varují. Pak se rozhodněte.',
+      q:'Klepněte v telefonu na věci, které vás varují. Pak se rozhodněte.',
       choices:[
-        {t:'Kliknout na „Objednat“',to:'f2'},
+        {t:'Klepnout na „Objednat“',to:'f2'},
         {t:'Poslat kamarádce, která má cukrovku',to:'bad_share'},
         {t:'Reklamu nahlásit a jít dál',to:'good_report'}]},
-    f2:{screen:()=>S_landing(),hot:true,tags:['Spěch'],q:'Jste na stránce obchodu. Klepněte na věci, které vás varují.',
+    f2:{screen:()=>S_landing(),hot:true,tags:['Spěch','Lákavá nabídka'],q:'Jste v e-shopu. Klepněte na všechno, co vás varuje.',
       extraFlags:{
-        lock:{t:'Zámeček neznamená důvěryhodnost',d:'Zámeček ukazuje jen šifrované spojení. Získá ho i podvodný web. O tom, kdo stránku provozuje, nic neříká.'},
-        timer:{t:'Časovač se po vypršení vrátí na začátek',d:'Podívejte se: když dojde na nulu, začne znovu od 9:59. Časový tlak je vymyšlený.'},
-        badge:{t:'Falešné razítko „Schváleno SÚKL“',d:'Razítko je jen obrázek. Tvrzení si ověřte u lékárníka nebo lékaře, ne na stránce, která ho prodává.'},
-        print:{t:'Drobné písmo: předplatné 2 490 Kč měsíčně',d:'Za 349 Kč jste si objednali pravidelný odběr, který se dá zrušit jen písemně. Drobné písmo čtěte jako první.'}
+        timer:{t:'Odpočet se po vypršení vrátí na začátek',d:'Vyčkejte chvíli: když dojde na nulu, začne znovu od 9:59. Časový tlak je vymyšlený.'},
+        media:{t:'„Známe z“ – loga médií',d:'Loga televizí a časopisů se dají vložit na jakýkoli web. Žádné z těch médií o přípravku nepsalo.'},
+        badge:{t:'Falešné razítko „Schváleno SÚKL“',d:'Razítko je jen obrázek. Doplněk stravy navíc SÚKL neschvaluje. Tvrzení si ověřte u lékárníka, ne na stránce, která zboží prodává.'},
+        print:{t:'Drobné písmo: předplatné 2 490 Kč měsíčně',d:'Za 349 Kč byste si objednali pravidelný odběr, který jde zrušit jen písemně a s měsíčním předstihem. A „přípravek není léčivo“.',v:'Drobné písmo čtěte jako první, ne jako poslední.'},
+        popup:{t:'„Jana z Olomouce si právě objednala“',d:'Vyskakovací oznámení o nákupech jsou generovaná automaticky. Mají vzbudit dojem, že kupují všichni a vy byste neměli zůstat pozadu.'},
+        lock:{t:'Zámeček neznamená důvěryhodnost',d:'Zámeček ukazuje jen šifrované spojení. Získá ho zdarma i podvodný web. O tom, kdo stránku provozuje, neříká nic.'}
       },
-      choices:[{t:'Zaplatit 349 Kč',to:'bad_pay'},{t:'Stránku zavřít',to:'good_close'}]},
-    good_report:{screen:()=>S_fbFeed(),end:{kind:'ok',title:'Správně. Reklamu jste nahlásili.',text:'Nahlášení pomáhá i dalším lidem. A pokud vás zajímá léčba, zeptejte se svého lékaře nebo lékárníka, ne reklamy.',steps:['U lékaře si ověřte, zda o takovém přípravku ví.','Upozorněte v okolí, že reklama je podvod.']}},
-    good_close:{screen:()=>S_home('Stránku jste zavřeli'),end:{kind:'ok',title:'Správně. Zavřeli jste stránku.',text:'Ničeho jste se nebáli a nic jste neztratili. Kdo vás tu honil časovačem, chtěl vaše údaje z karty.',steps:['Reklamu nahlaste přímo v příspěvku.','O lécích se radí lékaři, ne reklamy.']}},
-    bad_share:{screen:()=>S_fbFeed(),end:{kind:'warn',title:'Dobrý úmysl, špatný výsledek.',text:'Přeposláním jste podvodu pomohli: teď reklamu nedoporučuje neznámá stránka, ale vy, člověk, kterému kamarádka věří.',steps:['Napište jí, že jste se spletli, a reklamu smažte.','Nahlaste ji.','Zdravotní rady předávejte jen ze zdrojů, které znáte.']}},
-    bad_pay:{screen:()=>S_bank({from:35713,to:35364,amt:349,label:'Platba kartou · ZDRAVA-VLAST-AKCE.SHOP',sub:'Právě teď · platba kartou'}),sfx:'ding',end:{kind:'bad',title:'Zaplatili jste. A pojede to dál.',text:'Z účtu odešlo 349 Kč. Podvodníci ale mají údaje z vaší karty a v drobném písmu jste souhlasili s předplatným 2 490 Kč měsíčně.',stepsTitle:'Co udělat hned',steps:['Zavolejte do banky, nechte kartu zablokovat a vydat novou.','Požádejte o zrušení opakovaných plateb.','Podejte oznámení na policii (158).','Uschovejte snímky objednávky.']}}
+      choices:[{t:'Zaplatit 349 Kč kartou',to:'bad_pay'},{t:'Stránku zavřít',to:'good_close'}]},
+    good_report:{screen:()=>S_fbFeed(),end:{kind:'ok',title:'Správně. Reklamu jste nahlásili.',text:'Nahlášení pomáhá i dalším lidem. A pokud vás nová léčba zajímá, zeptejte se svého lékaře nebo lékárníka, ne reklamy.',steps:['Reklamu nahlásíte přes tři tečky u příspěvku → Nahlásit reklamu.','U lékaře si ověřte, zda o takovém přípravku ví.','Upozorněte v okolí, že reklama je podvod.']}},
+    good_close:{screen:()=>S_home('Stránka zavřena','zdrava-vlast-akce.shop'),end:{kind:'ok',title:'Správně. Stránku jste zavřeli.',text:'Nic jste nezadali a nic jste neztratili. Kdo vás tu honil odpočtem a „posledními kusy“, chtěl hlavně údaje z vaší karty.',steps:['Reklamu nahlaste přímo u příspěvku.','O lécích se radí lékaři, ne reklamy.']}},
+    bad_share:{screen:()=>S_fbFeed(),end:{kind:'warn',title:'Dobrý úmysl, špatný výsledek.',text:'Přeposláním jste podvodu pomohli: teď reklamu nedoporučuje neznámá stránka, ale vy – člověk, kterému kamarádka věří.',steps:['Napište jí, že jste se spletli a že jde o podvod.','Reklamu nahlaste.','Zdravotní rady předávejte jen ze zdrojů, které znáte.']}},
+    bad_pay:{screen:()=>S_bank({from:35713,to:35364,amt:349,label:'ZDRAVA-VLAST-AKCE.SHOP',sub:'Právě teď · platba kartou'}),sfx:'ding',end:{kind:'bad',title:'Zaplatili jste. A pojede to dál.',text:'Z účtu odešlo 349 Kč. Podvodníci ale teď mají údaje z vaší karty a v drobném písmu jste odsouhlasili předplatné 2 490 Kč měsíčně.',stepsTitle:'Co udělat hned',steps:['Zavolejte do banky, nechte kartu zablokovat a vydat novou.','Požádejte banku o zrušení opakovaných plateb a o reklamaci.','Podejte oznámení na policii (158).','Uschovejte snímky objednávky a reklamy.']}}
   }
 };
 
 const CH={
   title:'Sbírka na nemocné dítě',
+  intro:'Na sociální síti narazíte na dvě sbírky. Obě vás chytnou za srdce. Klepejte na to, co vás přesvědčuje nebo varuje – a pak se rozhodněte, kam poslat peníze.',
   flags:{
-    newA:{t:'Nová stránka a placená reklama',d:'Sbírka A vznikla před třemi dny a šíří se přes reklamu. Skutečná sbírka má historii a je spojená s organizací, kterou znáte.'},
-    nameA:{t:'Chybí jméno, město i nemocnice',d:'Jen křestní jméno a obrázek. Nedá se ověřit, že dítě existuje, natož kde se léčí.'},
-    pressA:{t:'Tlak: „do půlnoci, sdílejte“',d:'Termín a výzva ke sdílení jsou tu proto, abyste jednali dřív, než začnete přemýšlet.'},
-    acctA:{t:'Účet bez majitele',d:'Běžné číslo účtu, u kterého nevíte, komu patří. Peníze půjdou tomu, kdo ho zadal.'},
-    orgB:{t:'Je vidět, kdo sbírku pořádá',d:'Organizaci se jménem a IČO můžete dohledat v rejstříku (justice.cz).'},
-    whyB:{t:'Ví se, na co peníze jdou',d:'Konkrétní účel a zveřejňování výdajů. To je znak seriózní sbírky.'},
-    contactB:{t:'Je s kým mluvit',d:'Telefon a e-mail organizace. Zavolejte a zeptejte se, dřív než pošlete peníze.'},
-    acctB:{t:'Transparentní účet',d:'Všechny příchozí i odchozí platby jsou veřejně vidět. Tak se dá ověřit, kam peníze jdou.'}
+    newA:{t:'Nová stránka a placená reklama',d:'Sbírka A vznikla před třemi dny a šíří se přes reklamu. Skutečná sbírka má historii a je spojená s organizací, kterou si můžete dohledat.'},
+    nameA:{t:'Chybí příjmení, město i nemocnice',d:'Jen křestní jméno a obrázek. Nedá se ověřit, že dítě existuje, natož kde se léčí. Fotky podvodníci často kradou z cizích profilů.'},
+    pressA:{t:'Tlak: „do půlnoci, sdílejte“',d:'Termín a výzva ke sdílení jsou tu proto, abyste jednali dřív, než začnete přemýšlet – a abyste podvod sami šířili dál.'},
+    acctA:{t:'Účet bez majitele',d:'Běžné číslo účtu, u kterého nevíte, komu patří. Peníze půjdou tomu, kdo ho zadal, a zpátky je nedostanete.'},
+    orgB:{t:'Je vidět, kdo sbírku pořádá',d:'Organizaci se jménem a IČO dohledáte ve veřejném rejstříku (or.justice.cz). Uvidíte, jak dlouho existuje a kdo ji vede.',good:true},
+    whyB:{t:'Ví se, na co peníze jdou',d:'Konkrétní účel a zveřejněné faktury. To je znak seriózní sbírky.',good:true},
+    contactB:{t:'Je s kým mluvit',d:'Telefon a e-mail organizace. Zavolejte a zeptejte se, dřív než pošlete peníze.',good:true},
+    acctB:{t:'Transparentní účet',d:'Všechny příchozí i odchozí platby jsou veřejně vidět na webu banky. Tak se dá ověřit, kam peníze skutečně jdou.',good:true}
   },
   hotspots:['newA','nameA','pressA','acctA','orgB','whyB','contactB','acctB'],
   start:'c1',
@@ -541,55 +893,62 @@ const CH={
     c1:{screen:()=>S_charity(),hot:true,tags:['Soucit','Spěch'],
       q:'Klepněte na to, co vás přesvědčuje nebo varuje. Pak se rozhodněte.',
       choices:[
-        {t:'Podpořím sbírku A (rychle, dítě to potřebuje)',to:'bad_A'},
+        {t:'Podpořím sbírku A – rychle, dítě to potřebuje',to:'bad_A'},
         {t:'Podpořím sbírku B',to:'ok_B'},
         {t:'Nejdřív ověřím, kdo za sbírkou stojí',to:'good_check'}]},
-    bad_A:{screen:()=>S_charity(),end:{kind:'bad',title:'Peníze půjdou neznámo komu.',text:'U sbírky A není jméno, místo, organizace ani ověřitelný účet. Takové sbírky se dají založit za pár minut a bývají zablokované, až když jsou peníze pryč.',steps:['Než přispějete, ověřte pořadatele: kdo, kde, na co, kam.','Přispívejte organizacím, které znáte, na transparentní účet.','Podezřelou sbírku nahlaste.'],stepsTitle:'Příště'}},
-    ok_B:{screen:()=>S_charity(),end:{kind:'warn',title:'Dobrá volba. Ještě ji ověřte.',text:'Sbírka B má všechno, co má mít. Ale i seriózní vzhled se dá napodobit, takže před větší částkou udělejte poslední krok.',steps:['Dohledejte organizaci v rejstříku (justice.cz).','Zavolejte na kontakt, který znáte z jiného zdroje.','Zeptejte se organizace, zda tuto sbírku skutečně vede.'],stepsTitle:'Poslední krok'}},
-    good_check:{screen:()=>S_charity(),end:{kind:'ok',title:'Nejlepší volba. Zeptali jste se, kdo za tím stojí.',text:'U sbírky A se nedá zjistit nic, u sbírky B jde všechno ověřit. Tohle jediné rozlišení ochrání vaše peníze i důvěru lidí, kteří pomáhají.',steps:['Kdo? Jméno, organizace, IČO.','Kde? Transparentní účet a kontakt.','Na co? Konkrétní účel a zveřejněné výdaje.'],stepsTitle:'Tři otázky u každé sbírky'}}
+    bad_A:{screen:()=>S_charity(),end:{kind:'bad',title:'Peníze půjdou neznámo komu.',text:'U sbírky A není příjmení, místo, organizace ani ověřitelný účet. Takové sbírky se dají založit za pár minut a zablokují se, až když jsou peníze pryč.',steps:['Než přispějete, ověřte pořadatele: kdo, kde, na co, kam.','Přispívejte organizacím, které znáte, na transparentní účet.','Podezřelou sbírku nahlaste.'],stepsTitle:'Příště'}},
+    ok_B:{screen:()=>S_charity(),end:{kind:'warn',title:'Dobrá volba. Ještě ji ověřte.',text:'Sbírka B má všechno, co má mít. Jenže i seriózní vzhled se dá napodobit – podvodníci kopírují názvy skutečných fondů. Před větší částkou udělejte poslední krok.',steps:['Dohledejte organizaci v rejstříku (or.justice.cz).','Zavolejte na kontakt, který znáte z jiného zdroje, než je příspěvek.','Ověřte, že číslo transparentního účtu je stejné jako na webu fondu.'],stepsTitle:'Poslední krok'}},
+    good_check:{screen:()=>S_charity(),end:{kind:'ok',title:'Nejlepší volba. Ověřili jste, kdo za tím stojí.',text:'U sbírky A se nedá zjistit nic, u sbírky B jde všechno ověřit. Tohle jediné rozlišení ochrání vaše peníze i důvěru lidí, kteří pomáhají.',steps:['Kdo? Jméno, organizace, IČO.','Kde? Transparentní účet a kontakt.','Na co? Konkrétní účel a zveřejněné výdaje.'],stepsTitle:'Tři otázky u každé sbírky'}}
   }
 };
 
 const QUIZ_CARDS=[
   {scam:true,tags:['Spěch','Lákavá nabídka'],
-   html:()=>S_sms(['Vaše zásilka je zadržena. Doplaťte 39 Kč za doručení do 24 hodin: <u>posta-doruceni.top/cz/9F2K</u>'],{from:'+420 776 118 204',av:'?',sub:'Neznámé číslo'}),
-   why:['Neznámé číslo, žádné jméno odesílatele.','Malý doplatek je návnada. Cílem nejsou 39 korun, ale údaje z vaší karty.','Odkaz míří na neznámý web s koncovkou .top a tlačí na rychlost.']},
+   html:()=>S_sms([`Vaše zásilka je zadržena na depu. ${clue('Doplaťte 39 Kč')} za doručení ${clue('do 24 hodin')}, jinak bude vrácena odesílateli: ${clue('<u>posta-doruceni.top/cz/9F2K</u>')}`],{from:clue('+420 776 118 204'),unknown:true}),
+   why:['Neznámé číslo, žádné jméno odesílatele. Přepravci píší ze svého jména, ne z mobilu.','Malý doplatek je návnada. Cílem nejsou 39 korun, ale údaje z vaší karty.','Odkaz míří na neznámý web s koncovkou .top a tlačí na rychlost.']},
   {scam:false,tags:[],
-   html:()=>S_sms(['Vltava banka: Přihlášení do internetového bankovnictví z nového zařízení dnes v 8:41. Pokud jste to nebyli vy, zavolejte na číslo na zadní straně platební karty.'],{from:'Vltava banka',av:'V',sub:'Textová zpráva'}),
-   why:['Nic po vás nechce: žádný odkaz, kód ani peníze.','Posílá vás na číslo, které už znáte z karty.','Ani jméno odesílatele nejde slepě věřit. Rozhoduje, že tenhle text po vás nic nechce.']},
+   html:()=>S_sms([`Vltava banka: Přihlášení do internetového bankovnictví z nového zařízení dnes v 8:41. ${clue('Pokud jste to nebyli vy, zavolejte na číslo na zadní straně platební karty.',1)}`],{from:'Vltava banka',av:'V'}),
+   why:['Nic po vás nechce: žádný odkaz, kód ani peníze.','Posílá vás na číslo, které už znáte z karty.','Ani jménu odesílatele nejde slepě věřit – dá se podvrhnout. Rozhoduje, že tenhle text po vás nic nechce.']},
   {scam:true,tags:['Spěch','Strach'],
-   html:()=>S_mail('Vaše pojištění dnes vyprší!','Pojišťovna Domov','info@pojistovna-domov.help','<p>Vážený kliente,</p><p>Vaše pojištění vyprší <b>dnes</b>. Pro obnovení klikněte do 2 hodin, jinak pojistka zaniká.</p><span class="cta">Obnovit pojistku</span><p style="font-size:.85em;color:#667">Pojišťovna Domov, klientská linka</p>'),
-   why:['Adresa odesílatele (.help) nepatří pojišťovně.','Termín „do 2 hodin“ je vymyšlený spěch.','Tlačítko vede na cizí web. Pojištění si ověřte u své pojišťovny.']},
+   html:()=>S_mail({subj:'Vaše pojištění dnes vyprší!',name:'Pojišťovna Domov',addr:clue('info@pojistovna-domov.help'),col:'#d93025',body:`<p>Vážený kliente,</p><p>vaše pojištění domácnosti vyprší <b>dnes</b>. Pro obnovení klikněte ${clue('do 2 hodin')}, jinak pojistka bez náhrady zaniká.</p>${clue('<span class="cta">Obnovit pojistku</span>')}<p style="font-size:.85em;color:#667">Pojišťovna Domov, klientská linka</p>`}),
+   why:['Adresa odesílatele (.help) nepatří pojišťovně.','Lhůta „do 2 hodin“ je vymyšlený spěch. Pojistka nezaniká ze dne na den bez upozornění.','Tlačítko vede na cizí web. Pojištění si ověřte ve smlouvě nebo na klientské lince své pojišťovny.']},
   {scam:true,tags:['Soucit','Spěch','Utajení'],
-   html:()=>S_wa('+420 604 551 903','neuloženo v kontaktech',['Ahoj mami, rozbil se mi telefon, tohle je moje nové číslo 🙁','Můžeš mi hned poslat 12 000 Kč? Musím zaplatit fakturu. Zítra ti to vrátím.','Nemůžu volat, jsem v práci.']),
-   why:['Je to jeden z nejčastějších podvodů: „ahoj mami“ z nového čísla.','Chce peníze hned a nedá se s ním mluvit.','Zavolejte na staré číslo nebo se zeptejte na něco, co ví jen vaše rodina.']},
-  {scam:true,tags:['Autorita','Utajení','Strach'],
-   html:()=>`<div class="call act">${sb(1)}<div class="cn">Neznámé číslo</div><div class="ct">Probíhá hovor</div><div class="caps"><div class="h">Živé titulky</div><p>Kriminální policie, vrchní komisař Dvořák. Váš účet využívá skupina podvodníků.</p><p>Abychom vaše peníze ochránili, převeďte je ještě dnes na bezpečný účet. Nikomu nic neříkejte.</p></div><div class="cgrid"><div><i></i>ztlumit</div><div><i></i>klávesnice</div><div><i></i>reproduktor</div></div><div class="endrow"><span class="cbtn red">${PH}</span></div></div>`,
-   why:['Policie ani banka nikdy nechtějí převod peněz na „bezpečný účet“.','Používají autoritu a strach. „Nikomu nic neříkejte“ je varovný signál.','Zavěste a zavolejte na 158, číslo si vytočte sami.']},
+   html:()=>S_wa(clue('+420 604 551 903'),[`Ahoj mami, ${clue('rozbil se mi telefon, tohle je moje nové číslo')} 🙁`,`Můžeš mi ${clue('hned poslat 12 000 Kč')}? Musím zaplatit fakturu a mám zablokovaný bankovnictví. Zítra ti to vrátím.`,`${clue('Nemůžu volat, jsem v práci.')} Pošlu ti číslo účtu.`]),
+   why:['Jeden z nejčastějších podvodů vůbec: „ahoj mami/tati“ z nového čísla.','Chce peníze hned a nedá se s ním mluvit.','Zavolejte na staré číslo nebo se zeptejte na něco, co ví jen vaše rodina.']},
+  {scam:true,ring:true,tags:['Autorita','Utajení','Strach'],
+   html:()=>`<div class="scr callbg act">${sb(1)}<div class="cn">${clue('Neznámé číslo')}</div><div class="ct">Probíhá hovor · 01:12</div><div class="caps"><div class="h">Přepis hovoru</div><p>Dobrý den, ${clue('kriminální policie, vrchní komisař Dvořák')}. Váš účet využívá skupina podvodníků, zapojený je i někdo z vaší banky.</p><p>Abychom vaše peníze ochránili, ${clue('převeďte je ještě dnes na bezpečný účet')}. ${clue('Nikomu nic neříkejte')}, ani v bance.</p></div>${CGRID}<div class="endrow"><span class="cbtn red">${PH}</span></div></div>`,
+   why:['Policie ani banka nikdy nechtějí převod peněz na „bezpečný účet“. Takový účet neexistuje.','Používají autoritu a strach. „Nikomu nic neříkejte“ je jasný varovný signál.','Zavěste a zavolejte na 158 – číslo si vytočte sami.']},
   {scam:false,tags:[],
-   html:()=>S_sms(['Ambulance MUDr. Nováková: Připomínáme kontrolu zítra v 9:30. Změnu prosím sdělte na tel. 543 210 987. Děkujeme.'],{from:'Ambulance Nováková',av:'A',sub:'Textová zpráva'}),
-   why:['Nemá odkaz, nechce peníze a nespěchá.','Sedí to na to, co sami víte: pokud máte u téhle ambulance termín, je to v pořádku.','Nemáte-li termín, zavolejte na číslo, které znáte odjinud.']},
+   html:()=>S_sms([`Ambulance MUDr. Nováková: Připomínáme ${clue('kontrolu zítra v 9:30',1)}. Změnu prosím sdělte na tel. 543 210 987. Děkujeme.`],{from:'Ambulance Nováková',av:'A'}),
+   why:['Nemá odkaz, nechce peníze a nespěchá.','Sedí na to, co sami víte: pokud máte u této ambulance termín, je to v pořádku.','Nemáte-li termín, zavolejte na číslo ambulance, které znáte odjinud.']},
   {scam:true,tags:['Autorita','Spěch','Utajení'],
-   html:()=>S_mail('Nová faktura – úhrada ihned','Hana Dvořáková','hana.dvorakova.spolek@gmail.com','<p>Dobrý den,</p><p>prosím o <b>okamžitou úhradu</b> faktury 86 400 Kč na <b>nový účet</b> (v příloze). Jsem na jednání, nemohu telefonovat. Potvrďte prosím, jakmile platba odejde.</p><p>Hana</p><div class="att">📎 faktura_2026-118.pdf</div>'),
-   why:['Soukromý e-mail místo obvyklé adresy.','Změna účtu, spěch a „nemohu telefonovat“ je klasika podvodu na účetní a správce financí.','Změnu účtu vždy ověřte telefonem na číslo, které znáte.']},
+   html:()=>S_mail({subj:'Faktura – úhrada ihned',name:'Hana Dvořáková',addr:clue('hana.dvorakova.spolek@gmail.com'),col:'#0b8043',time:'10:12',body:`<p>Dobrý den,</p><p>prosím o ${clue('<b>okamžitou úhradu</b>')} faktury 86 400 Kč. Dodavatel změnil banku, platbu pošlete ${clue('<b>na nový účet</b>')} uvedený v příloze. ${clue('Jsem na jednání, nemohu telefonovat.')} Potvrďte prosím, jakmile platba odejde.</p><p>Děkuji, Hana<br><span style="color:#667;font-size:.9em">předsedkyně spolku</span></p><div class="att"><i>PDF</i>faktura_2026-118.pdf</div>`}),
+   why:['Soukromý Gmail místo obvyklé adresy spolku.','Změna účtu + spěch + „nemohu telefonovat“ = klasický podvod na účetní a pokladníky spolků a firem.','Změnu účtu vždy ověřte telefonem na číslo, které znáte – ne odpovědí na e-mail.']},
   {scam:false,tags:[],
-   html:()=>S_mail('Váš výpis za září je připraven','Vltava banka','noreply@vltavabanka.cz','<p>Dobrý den,</p><p>váš měsíční výpis z účtu za září je připraven v internetovém bankovnictví. Přihlaste se jako obvykle.</p><p style="color:#667;font-size:.9em">Vltava banka</p>'),
-   why:['Bez odkazu a bez naléhání.','Posílá vás cestou, kterou už znáte: „přihlaste se jako obvykle“.','Kdyby v e-mailu byl odkaz a spěch, byla by to jiná situace.']}
+   html:()=>S_mail({subj:'Váš výpis za září je připraven',name:'Vltava banka',addr:'noreply@vltavabanka.cz',col:'#0f6e63',time:'7:05',body:`<p>Dobrý den,</p><p>váš měsíční výpis z účtu za září je připraven v internetovém bankovnictví. ${clue('Přihlaste se jako obvykle.',1)}</p><p style="color:#667;font-size:.9em">Vltava banka<br>Tento e-mail neobsahuje žádné odkazy.</p>`}),
+   why:['Bez odkazu, bez přílohy, bez naléhání.','Posílá vás cestou, kterou už znáte: „přihlaste se jako obvykle“ – tedy přes aplikaci nebo adresu, kterou si napíšete sami.','Kdyby v e-mailu byl odkaz na přihlášení a spěch, byla by to úplně jiná situace.']},
+  {scam:true,tags:['Lákavá nabídka','Autorita'],
+   html:()=>S_sms([`ZP Morava: Na základě ročního vyúčtování vám vznikl ${clue('přeplatek 1 840 Kč')}. Pro vrácení na účet ${clue('ověřte platební kartu')} do 48 h: ${clue('<u>zp-morava-vratka.info/cz</u>')}`],{from:clue('ZP-Info'),av:'Z'}),
+   why:['Pojišťovna ani úřad vám peníze nevrací přes „ověření platební karty“. Na vrácení peněz stačí číslo účtu – a to po vás chtějí písemně.','Odkaz vede na cizí web, ne na stránky pojišťovny.','Ověřte si to na klientské lince pojišťovny – číslo najdete na kartičce pojištěnce.']},
+  {scam:false,tags:[],
+   html:()=>S_sms([`${clue('eRecept: 7NH4 KQ2P 9WXA',1)}. Vystavil MUDr. Petr Svoboda. Předložte v libovolné lékárně.`],{from:'eRecept',av:'e'}),
+   why:['Takovou SMS dostanete po vystavení elektronického receptu. Neobsahuje odkaz ani žádost o platbu.','Sedí na to, co jste právě zažili: byli jste u lékaře a čekáte recept.','Kód patří jen lékárně. Nikomu jinému ho nepřeposílejte – dá se podle něj vyzvednout lék.']}
 ];
-
-const THREE=['Kdo mi to píše nebo volá a odkud to vím?','Proč to tak spěchá a proč to mám tajit?','Ověřím si to jinou cestou, než mi nabídli?'];
 
 /* ---------- engine ---------- */
 const SCN={call:CALL,fb:FB,charity:CH};
-const el={menu:$('#menu'),stage:$('#stage'),screen:$('#screen'),tray:$('#tray'),notes:$('#notes'),empty:$('#emptyNote'),verdict:$('#verdict'),pressure:$('#pressure'),title:$('#stTitle')};
+const el={menu:$('#menu'),stage:$('#stage'),screen:$('#screen'),tray:$('#tray'),notes:$('#notes'),empty:$('#emptyNote'),verdict:$('#verdict'),pressure:$('#pressure'),title:$('#stTitle'),sit:$('#sit')};
+$('#threeList').innerHTML=THREE.map(t=>`<li>${t}</li>`).join('');
+$('#leverList').innerHTML=PRESSURE.map(p=>`<dt>${p}</dt><dd>${LEVERS[p]}</dd>`).join('');
 
-function show(view){el.menu.hidden=view!=='menu';el.stage.hidden=view!=='stage';window.scrollTo({top:0,behavior:'auto'});}
-function resetState(){S.seen=new Set();S.found=new Set();S.notes=[];S.tags=new Set();S.log=[];S.t0=0;hush();}
+function show(view){el.menu.hidden=view!=='menu';el.stage.hidden=view!=='stage';window.scrollTo({top:0,behavior:'auto'});if(view==='stage'&&matchMedia('(max-width:640px)').matches)el.stage.scrollIntoView({block:'start'});}
+function resetState(){S.seen=new Set();S.found=new Set();S.notes=[];S.tags=new Set();S.log=[];S.t0=0;S.q=null;hush();}
+function toPhone(){if(narrow())setTimeout(()=>$('#phone').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'}),60);}
 
 function start(key){
-  resetState();S.key=key;
+  resetState();S.key=key;el.screen.classList.remove('reveal');
   if(key==='quiz'){startQuiz();return;}
-  S.scn=SCN[key];S.q=null;nextVoice();el.title.textContent=S.scn.title;show('stage');enter(S.scn.start);
+  S.scn=SCN[key];nextVoice();el.title.textContent=S.scn.title;el.sit.textContent=S.scn.intro;show('stage');enter(S.scn.start);
 }
 function enter(id){
   S.id=id;S.node=S.scn.nodes[id];const n=S.node;
@@ -624,29 +983,38 @@ function render(){
   if(el.screen.querySelector('[data-count]'))animateCount();
   renderCoach();renderTray();tick();
 }
+const VACT=`<div class="row2 vact"><button class="btn" data-again>Zkusit znovu</button><button class="btn ghost" data-menu>Jiná situace</button></div>`;
+const chips=()=>PRESSURE.map(p=>`<span class="chip${S.tags.has(p)?' on':''}">${p}</span>`).join('');
+function noteHtml(f,kind){
+  const k=f.good&&kind!=='notice'?'good':kind;
+  const icon=k==='found'?'flag':k==='missed'?'alert':k==='good'?'check':'info';
+  const lbl=kind==='missed'?'<em>Tohle vám uniklo</em>':'';
+  return `<li class="note ${k}"><b>${ic(icon)}${f.t}</b><span>${f.d}</span>${f.v?`<span class="v">${f.v}</span>`:''}${lbl}</li>`;
+}
 function renderCoach(){
-  el.pressure.innerHTML=PRESSURE.map(p=>`<span class="chip${S.tags.has(p)?' on':''}">${p}</span>`).join('');
-  el.notes.innerHTML=S.notes.map(({id,kind})=>{
-    const f=flagInfo(id);if(!f)return'';
-    const lbl=kind==='missed'?'<em>Také stálo za povšimnutí</em>':'';
-    return `<li class="note ${kind}"><b>${f.t}</b><span>${f.d}</span>${lbl}</li>`;
-  }).join('');
+  el.pressure.innerHTML=chips();
+  el.notes.innerHTML=S.notes.map(({id,kind})=>{const f=flagInfo(id);return f?noteHtml(f,kind):'';}).join('');
   el.empty.hidden=S.notes.length>0;
   const e=S.node&&S.node.end;
   if(e){
-    el.verdict.innerHTML=`<div class="verdict ${e.kind}"><h3>${e.title}</h3><p>${e.text}</p>${e.steps?`<p><b>${e.stepsTitle||'Co si odnést'}</b></p><ol>${e.steps.map(s=>`<li>${s}</li>`).join('')}</ol>`:''}</div>`;
-    if(matchMedia('(max-width:920px)').matches)setTimeout(()=>el.verdict.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'}),350);
+    const icon=e.kind==='ok'?'check':e.kind==='bad'?'alert':'info';
+    el.verdict.innerHTML=`<div class="verdict ${e.kind}"><div class="vh">${ic(icon)}<h3>${e.title}</h3></div><p>${e.text}</p>${e.steps?`<p><b>${e.stepsTitle||'Co si odnést'}</b></p><ol>${e.steps.map(s=>`<li>${s}</li>`).join('')}</ol>`:''}${VACT}</div>`;
+    if(narrow())setTimeout(()=>el.verdict.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'}),350);
   }else el.verdict.innerHTML='';
+}
+function countHtml(){
+  const all=$$('[data-flag]',el.screen),f=all.filter(x=>x.classList.contains('found')).length;
+  return `<span class="dots" aria-hidden="true">${all.map((_,i)=>`<i class="${i<f?'on':''}"></i>`).join('')}</span>Nalezeno ${f} z ${all.length}`;
 }
 function renderTray(){
   const n=S.node;let h='';
   if(n.end){
-    if(n.extra)h+=`<button class="choice" data-extra>${n.extra.t}</button>`;
-    h+=`<button class="btn" data-again>Zkusit znovu</button><button class="btn ghost" data-menu>Jiná ukázka</button>`;
+    if(n.extra)h+=`<button class="choice" data-extra>${ic('arrow')}${n.extra.t}</button>`;
+    h+=`<div class="row2"><button class="btn" data-again>Zkusit znovu</button><button class="btn ghost" data-menu>Jiná situace</button></div>`;
   }else{
-    if(n.hot){const tot=$$('[data-flag]',el.screen).length;h+=`<p class="q">${n.q}</p><p class="hint" id="cnt">Nalezeno ${$$('[data-flag].found',el.screen).length} z ${tot}</p>`;}
+    if(n.hot)h+=`<p class="q">${n.q}</p><p class="hint" id="cnt">${countHtml()}</p><div class="live" id="live" hidden></div>`;
     else h+=`<p class="q">Co uděláte?</p>`;
-    h+=n.choices.map((c,i)=>`<button class="choice" data-i="${i}">${c.t}</button>`).join('');
+    h+=n.choices.map((c,i)=>`<button class="choice" data-i="${i}"><span class="k">${'ABCD'[i]}</span>${c.t}</button>`).join('');
   }
   el.tray.innerHTML=h;
 }
@@ -655,51 +1023,60 @@ function pick(i){
   if(c.say)S.log.push({who:'me',text:c.say});
   if(c.hang&&c.to==='good')hush();
   enter(c.to);
+  if(!S.node.end)toPhone();
 }
 function toggleFlag(x){
-  const id=x.dataset.flag;if(S.node.end)return;
-  if(S.found.has(id)){S.found.delete(id);x.classList.remove('found');S.notes=S.notes.filter(n=>!(n.id===id&&n.kind==='found'));}
-  else{S.found.add(id);x.classList.add('found');addNote(id,'found');}
-  renderCoach();const cnt=$('#cnt');if(cnt)cnt.textContent=`Nalezeno ${$$('[data-flag].found',el.screen).length} z ${$$('[data-flag]',el.screen).length}`;
+  const id=x.dataset.flag;if(!S.node||S.node.end)return;
+  const live=$('#live');
+  if(S.found.has(id)){S.found.delete(id);x.classList.remove('found');S.notes=S.notes.filter(n=>!(n.id===id&&n.kind==='found'));if(live)live.hidden=true;}
+  else{
+    S.found.add(id);x.classList.add('found');addNote(id,'found');
+    const f=flagInfo(id);
+    if(live&&f){live.hidden=false;live.style.cssText=f.good?'background:var(--green-bg);border-color:#a9d3b8':'';live.innerHTML=`<b style="${f.good?'color:var(--green)':''}">${f.t}</b>${f.d}`;live.style.animation='none';void live.offsetWidth;live.style.animation='';}
+  }
+  renderCoach();const cnt=$('#cnt');if(cnt)cnt.innerHTML=countHtml();
 }
 
 /* ---------- quiz ---------- */
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function startQuiz(){
   S.scn={title:'Rychlé kolo',flags:{}};S.node=null;
-  S.q={deck:shuffle(QUIZ_CARDS),i:0,score:0,done:false,answered:false};
-  el.title.textContent='Rychlé kolo: podvod, nebo ne?';show('stage');renderQuiz();
+  S.q={deck:shuffle(QUIZ_CARDS),i:0,score:0};
+  el.title.textContent='Rychlé kolo: podvod, nebo ne?';
+  el.sit.textContent='Deset zpráv a hovorů, jaké chodí každý den. U každé se rozhodněte. Po odpovědi se v telefonu zvýrazní, čeho si všimnout.';
+  show('stage');renderQuiz();
 }
 function renderQuiz(){
-  const q=S.q;S.notes=[];S.tags=new Set();
+  const q=S.q;S.notes=[];S.tags=new Set();el.screen.classList.remove('reveal');
+  el.pressure.innerHTML=chips();
   if(q.i>=q.deck.length){
-    el.screen.innerHTML=S_home('Hotovo');
-    el.pressure.innerHTML=PRESSURE.map(p=>`<span class="chip">${p}</span>`).join('');
+    const s=q.score,n=q.deck.length,good=s>=Math.ceil(n*.75);
+    el.screen.innerHTML=S_home('Hotovo',`Rychlé kolo: ${s} z ${n}`);
     el.notes.innerHTML='';el.empty.hidden=true;
-    const s=q.score,n=q.deck.length;
-    el.verdict.innerHTML=`<div class="verdict ${s>=6?'ok':'warn'}"><div class="score">${s} z ${n}</div><h3>${s===n?'Bezchybně.':s>=6?'Výborně.':'Dobrý začátek.'}</h3><p>Nejde o to trefit všechno. Jde o zvyk: než na zprávu reagujete, zastavte se a položte si tři otázky.</p><ol>${THREE.map(t=>`<li>${t}</li>`).join('')}</ol></div>`;
-    el.tray.innerHTML=`<button class="btn" data-again>Zahrát znovu</button><button class="btn ghost" data-menu>Jiná ukázka</button>`;
+    el.verdict.innerHTML=`<div class="verdict ${good?'ok':'warn'}"><div class="score">${s} z ${n}</div><h3 style="margin-top:.4rem">${s===n?'Bezchybně.':good?'Výborně.':'Dobrý začátek.'}</h3><p>Nejde o to trefit všechno. Jde o zvyk: než na zprávu nebo hovor zareagujete, zastavte se a položte si tři otázky.</p><ol>${THREE.map(t=>`<li>${t}</li>`).join('')}</ol>${VACT}</div>`;
+    el.tray.innerHTML=`<div class="row2"><button class="btn" data-again>Zahrát znovu</button><button class="btn ghost" data-menu>Jiná situace</button></div>`;
+    if(narrow())setTimeout(()=>el.verdict.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'}),200);
     return;
   }
   const c=q.deck[q.i];
   el.screen.innerHTML=c.html();
-  el.pressure.innerHTML=PRESSURE.map(p=>`<span class="chip">${p}</span>`).join('');
   el.notes.innerHTML='';el.empty.hidden=false;el.verdict.innerHTML='';
-  el.tray.innerHTML=`<div class="progress" aria-hidden="true"><i style="width:${q.i/q.deck.length*100}%"></i></div><p class="q">Zpráva ${q.i+1} z ${q.deck.length}: je to podvod?</p><button class="choice two scam" data-ans="1">Podvod</button><button class="choice two fine" data-ans="0">V pořádku</button>`;
-  if(c.scam===true&&c.html().includes('Probíhá hovor'))ring();else ding();
+  el.tray.innerHTML=`<div class="progress" aria-hidden="true"><i style="width:${q.i/q.deck.length*100}%"></i></div><p class="q">Zpráva ${q.i+1} z ${q.deck.length}: je to podvod?</p><div class="twin"><button class="choice two scam" data-ans="1">${ic('alert')}Podvod</button><button class="choice two fine" data-ans="0">${ic('check')}V pořádku</button></div>`;
+  if(c.ring)ring();else ding();
   tick();
 }
 function answerQuiz(sayScam){
   const q=S.q,c=q.deck[q.i];const right=(sayScam===c.scam);
   if(right)q.score++;
   c.tags.forEach(t=>S.tags.add(t));
-  el.pressure.innerHTML=PRESSURE.map(p=>`<span class="chip${S.tags.has(p)?' on':''}">${p}</span>`).join('');
+  el.pressure.innerHTML=chips();
+  el.screen.classList.add('reveal');
   el.empty.hidden=true;
-  el.notes.innerHTML=c.why.map(w=>`<li class="note ${right?'':'missed'}"><span>${w}</span></li>`).join('');
-  el.verdict.innerHTML=`<div class="verdict ${right?'ok':'bad'}"><h3>${right?'Správně.':'Tentokrát ne.'} ${c.scam?'Byl to podvod.':'Tahle zpráva byla v pořádku.'}</h3></div>`;
+  el.notes.innerHTML=c.why.map(w=>`<li class="note ${c.scam?'found':'good'}"><span>${w}</span></li>`).join('');
+  el.verdict.innerHTML=`<div class="verdict ${right?'ok':'bad'}"><div class="vh">${ic(right?'check':'alert')}<h3>${right?'Správně.':'Tentokrát ne.'} ${c.scam?'Byl to podvod.':'Tahle zpráva byla v pořádku.'}</h3></div><p style="margin-bottom:0">${c.scam?'Červeně jsou v telefonu označená varovná znamení.':'Zeleně je v telefonu označeno, podle čeho to poznat.'}</p></div>`;
   const last=q.i+1>=q.deck.length;
-  el.tray.innerHTML=`<div class="progress" aria-hidden="true"><i style="width:${(q.i+1)/q.deck.length*100}%"></i></div><button class="btn" data-next>${last?'Zobrazit výsledek':'Další zpráva'}</button>`;
-  if(matchMedia('(max-width:920px)').matches)setTimeout(()=>el.verdict.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'}),200);
+  el.tray.innerHTML=`<div class="progress" aria-hidden="true"><i style="width:${(q.i+1)/q.deck.length*100}%"></i></div><p class="q">${right?'Správně':'Tentokrát ne'} · skóre ${q.score} z ${q.i+1}</p><button class="btn" data-next>${last?'Zobrazit výsledek':'Další zpráva'}${ic('arrow')}</button>`;
+  if(narrow())setTimeout(()=>el.verdict.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'}),200);
 }
 
 /* ---------- ticking things ---------- */
@@ -725,25 +1102,25 @@ document.addEventListener('click',e=>{
   const st=t.closest('[data-start]');if(st){start(st.dataset.start);return;}
   if(t.closest('#back')||t.closest('[data-menu]')){resetState();hush();show('menu');return;}
   if(t.closest('[data-again]')){start(S.key);return;}
-  if(t.closest('[data-next]')){S.q.i++;renderQuiz();return;}
-  const ans=t.closest('[data-ans]');if(ans){answerQuiz(ans.dataset.ans==='1');return;}
-  if(t.closest('[data-extra]')){const x=S.node.extra;resetNotesKeep();enter(x.to);return;}
+  if(t.closest('[data-next]')){S.q.i++;renderQuiz();toPhone();return;}
+  const ans=t.closest('[data-ans]');if(ans){if(!el.screen.classList.contains('reveal'))answerQuiz(ans.dataset.ans==='1');return;}
+  if(t.closest('[data-extra]')){const x=S.node.extra;resetNotesKeep();enter(x.to);toPhone();return;}
   const ch=t.closest('.choice[data-i]');if(ch){pick(+ch.dataset.i);return;}
-  const ph=t.closest('#screen [data-choice]');if(ph&&S.node&&!S.node.end){pick(+ph.dataset.choice);return;}
-  if(t.closest('#screen [data-hang]')&&S.node&&S.node.choices){const i=S.node.choices.findIndex(c=>c.hang);if(i>=0)pick(i);return;}
-  const hf=t.closest('#screen [data-flag]');if(hf){toggleFlag(hf);return;}
+  const ph=t.closest('#screen [data-choice]');if(ph&&S.node&&!S.node.end&&!S.q){pick(+ph.dataset.choice);return;}
+  if(t.closest('#screen [data-hang]')&&S.node&&S.node.choices&&!S.q){const i=S.node.choices.findIndex(c=>c.hang);if(i>=0)pick(i);return;}
+  const hf=t.closest('#screen [data-flag]');if(hf&&!S.q){toggleFlag(hf);return;}
 });
 function resetNotesKeep(){S.notes=S.notes.filter(n=>n.kind==='notice');}
 document.addEventListener('keydown',e=>{
   if(e.key!=='Enter'&&e.key!==' ')return;
   const t=e.target;if(t.matches&&t.matches('#screen [data-flag],#screen [data-choice]')){e.preventDefault();t.click();}
 });
-function bindToggle(id,key,cb){
+function bindToggle(id,cb){
   const b=$(id);b.addEventListener('click',()=>{const v=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',v);cb(v);});
 }
-bindToggle('#tBig','big',v=>document.body.classList.toggle('big',v));
-bindToggle('#tSnd','snd',v=>{S.sound=v;});
-bindToggle('#tVoice','voice',v=>{S.voice=v;if(!v)hush();else speak('Hlas je zapnutý.');});
+bindToggle('#tBig',v=>document.body.classList.toggle('big',v));
+bindToggle('#tSnd',v=>{S.sound=v;});
+bindToggle('#tVoice',v=>{S.voice=v;if(!v)hush();else speak('Hlas je zapnutý.');});
 if(new URLSearchParams(location.search).get('velke')==='1'){document.body.classList.add('big');$('#tBig').setAttribute('aria-pressed','true');}
 window.__sim={S,start,pick};
 })();
