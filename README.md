@@ -1,4 +1,4 @@
-# Podvod, nebo ne? – simulátor
+# Podvod, nebo ne? – vyzkoušejte si to
 
 Interaktivní trenažér k přednášce pro Sněm pacientských organizací LPR (14. 10. 2026).
 Jeden soubor `index.html`, žádný build, žádné externí služby, funguje i offline.
